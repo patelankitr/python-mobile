@@ -1,0 +1,35 @@
+{
+  "run": "android",
+  "config": {
+    "android": {
+      "platform": "android",
+      "app": "demo_app.apk",
+      "platformVersion": "13",
+      "deviceName": "b7eeffed",
+      "capabilities": {
+        "automationName": "UiAutomator2",
+        "appWaitDuration": 30000,
+        "newCommandTimeout": 60,
+        "noReset": true
+      }
+    },
+    "iOS": {
+      "platform": "iOS",
+      "deviceName": "iPhone 11",
+      "app": "app-release-2.0.1.ipa",
+      "platformVersion": "15",
+      "automationName": "XCUITest"
+    },
+    "lambdaTest": {
+      "platform": "cloud",
+      "deviceName": "Pixel.*,realme.*,Galaxy.*",
+      "platformVersion": "11",
+      "isRealMobile": true
+    },
+    "browserStack": {
+      "platform": "web",
+      "browser": "chrome",
+      "browserVersion": "latest"
+    }
+  }
+}
