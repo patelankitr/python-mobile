@@ -1,0 +1,77 @@
+import time
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
+from appium.webdriver.common.appiumby import AppiumBy
+import json
+from framework.mobile.prints import text_print
+from framework.init.base import locator_map
+class Verify:
+    def __init__(self, driver, file_path):
+        self.driver = driver
+        self.file_path = file_path
+        self.locators = self.load_locators()
+
+    def load_locators(self):
+        """
+        Load locators from a JSON file.
+        """
+        try:
+            with open(self.file_path, 'r') as file:
+                return json.load(file)
+        except FileNotFoundError:
+            raise FileNotFoundError(f"Locator file not found: {self.file_path}")
+        except json.JSONDecodeError:
+            raise ValueError(f"Invalid JSON format in file: {self.file_path}")
+
+    def element_visible(self, locator_name, timeout=10):
+        try:
+            locator = self.locators.get(locator_name)
+            if not locator:
+                raise ValueError(f"Locator '{locator_name}' not found in locators file")
+
+            locator_type = locator.get("locator_type", "").lower()
+            if not locator_type:
+                raise ValueError(f"Locator type not specified for '{locator_name}'")
+
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                raise ValueError(
+                    f"Unsupported locator type: '{locator_type}'. Supported types are: {list(locator_map.keys())}")
+
+            locator_value = locator.get("locator")
+            if not locator_value:
+                raise ValueError(f"Locator value not specified for '{locator_name}'")
+
+            WebDriverWait(self.driver, timeout).until(
+                EC.visibility_of_element_located((by_type, locator_value))
+            )
+            return True
+        except TimeoutException:
+            raise TimeoutException(f"Element '{locator_name}' not visible after {timeout} seconds")
+        
+def element_not_visible(self, locator_name, timeout=10):
+        try:
+            locator = self.locators.get(locator_name)
+            if not locator:
+                raise ValueError(f"Locator '{locator_name}' not found in locators file")
+
+            locator_type = locator.get("locator_type", "").lower()
+            if not locator_type:
+                raise ValueError(f"Locator type not specified for '{locator_name}'")
+
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                raise ValueError(
+                    f"Unsupported locator type: '{locator_type}'. Supported types are: {list(locator_map.keys())}")
+
+            locator_value = locator.get("locator")
+            if not locator_value:
+                raise ValueError(f"Locator value not specified for '{locator_name}'")
+    
+            WebDriverWait(self.driver, timeout).until(
+                EC.invisibility_of_element_located((by_type, locator_value))
+            )
+            return True
+        except TimeoutException:
+            raise TimeoutException(f"Element '{locator_name}' still visible after {timeout} seconds")

@@ -1,0 +1,35 @@
+{
+    "phone_email_textbox": {
+        "locator_type": "xpath",
+        "locator": "//android.widget.EditText"
+      },
+      "continue_button": {
+        "locator_type": "xpath",
+        "locator": "//android.widget.Button[@content-desc=\"CONTINUE \"]"
+      },
+      "continue_text_button": {
+        "locator_type": "content",
+        "locator": "CONTINUE"
+      },
+        "continue_text_ui_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().description(\"CONTINUE \")"
+      },
+      "password_textbox": {
+        "locator_type": "xpath",
+        "locator": "//android.widget.EditText"
+      },
+      "login_with_password_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().description(\"Log In with Password \")"
+      },
+      "back_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().className(\"android.view.View\").instance(3)"
+      },
+      "profile_name": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().description(\"App Testing Demo Agency\")"
+      }
+}
+

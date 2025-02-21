@@ -3,64 +3,231 @@ from pathlib import Path
 from alttester import AltDriver
 from appium import webdriver
 from appium.options.common import AppiumOptions
-from framework.readers.jsonFileReader import ConfigReader  # Importing ConfigReader
+from appium.webdriver.appium_service import AppiumService
+from framework.readers.jsonReader import ConfigReader
+from colorama import Fore, Back, Style
+from framework.mobile.prints import text_print
+import emoji
+from appium.webdriver.common.appiumby import AppiumBy
 
-
-# Load configuration
-config_reader = ConfigReader("D:\\Projects\\python-mo-framework\\config\\TestConfig.json")
-config = config_reader.get_config()
-
-# Extract required values from JSON
-platform = config.get("platform")
-app = config.get("app")
-platform_version = config.get("platformVersion")
-deviceName = config.get("deviceName")
-
-# Extract optional Appium capabilities (if present)
-optional_capabilities = config.get("capabilities", {})
-
-print(f"Platform: {platform}")
-print(f"App: {app}")
-print(f"Platform Version: {platform_version}")
-print(f"Additional Capabilities: {optional_capabilities}")
-print(f"Device Name: {deviceName}")
-
-
-def get_project_root() -> Path:
-    return Path(__file__).resolve().parent.parent
-
-
-def root_path():
-    """Finds and returns the APK file path dynamically."""
-    root = get_project_root()
-    apk_directory = root.parent / "app"
-    apk_file_path = apk_directory / app
-    if not apk_file_path.exists():
-        raise FileNotFoundError(f"APK file not found: {apk_file_path}")
-    apk_file_path = apk_file_path.resolve()  # Convert to absolute path
-    print(f"APK file found: {apk_file_path}")
-    return str(apk_file_path)  # Return as string
-
-
-# Base Appium Capabilities (always required)
-base_capabilities = {
-    'platformName': platform,
-    'deviceName': deviceName,
-    'platformVersion': platform_version,
-    'app': root_path()
+# Define locator_map at module level
+locator_map = {
+    'xpath': AppiumBy.XPATH,
+    'id': AppiumBy.ID,
+    'path': AppiumBy.XPATH,
+    'content': AppiumBy.ACCESSIBILITY_ID,
+    'uiautomator': AppiumBy.ANDROID_UIAUTOMATOR,
+    'class': AppiumBy.CLASS_NAME
 }
-# Merge with optional capabilities from JSON
-final_capabilities = {**base_capabilities, **optional_capabilities}
 
-# Parameterized function to initialize Appium driver
-def init_appium_driver():
-    appium_driver = webdriver.Remote("http://127.0.0.1:4723", options=AppiumOptions().load_capabilities(final_capabilities))
-    return appium_driver
+class DriverFactory:
+    def __init__(self):
+        # Initialize services and drivers as None
+        self.appium_service = None
+        self.driver = None
+        
+        # Load configuration
+        project_root = Path(__file__).resolve().parent.parent.parent
+        config_path = project_root / "config" / "TestConfig.json"
+        if not config_path.exists():
+            raise FileNotFoundError(f"Config file not found at: {config_path}")
+        # Initialize config reader with dynamic path
+        self.config_reader = ConfigReader(str(config_path))
+        self.run_type = self.config_reader.get_run_platform()
+        self.platform_config = self.config_reader.get_platform_config()
+        
+        # Extract common values
+        self.platform = self.platform_config.get("platform")
+        self.app = self.platform_config.get("app")
+        self.platform_version = self.platform_config.get("platformVersion")
+        self.device_name = self.platform_config.get("deviceName")
+        self.capabilities = self.platform_config.get("capabilities", {})
 
-# Function to initialize AltTester driver
+        text_print(f"run_type: {self.run_type}","✳")
+        text_print(f"platform: {self.platform}", "✳")
+        text_print(f"platform_version {self.platform_version}", "✳")
+        text_print(f"device_name {self.device_name}", "✳")
+        text_print(f"app {self.app}", "✳")
+
+    def get_project_root(self) -> Path:
+        return Path(__file__).resolve().parent.parent
+
+    def get_app_path(self):
+        """Get app path for mobile testing"""
+        if self.run_type.lower() in ["lambdatest", "browserstack"]:
+            return self.app
+        
+        root = self.get_project_root()
+        app_directory = root.parent / "app"
+        app_file_path = app_directory / self.app
+        
+        if not app_file_path.exists():
+            raise FileNotFoundError(f"App file not found: {app_file_path}")
+        return str(app_file_path.resolve())
+
+    def get_capabilities(self):
+        """Generate capabilities based on platform"""
+        if self.run_type.lower() == "android":
+            # Required capabilities
+            caps = {
+                'platformName': 'Android',
+                'deviceName': self.device_name,
+                'platformVersion': str(self.platform_version),
+                'app': self.get_app_path(),
+                'automationName': 'UiAutomator2'
+            }
+            
+        elif self.run_type.lower() == "ios":
+            # Required capabilities
+            caps = {
+                'platformName': 'iOS',
+                'deviceName': self.device_name,
+                'platformVersion': self.platform_version,
+                'app': self.get_app_path(),
+                'automationName': 'XCUITest'
+            }
+            
+        elif self.run_type.lower() == "lambdatest":
+            caps = {
+                'platformName': self.platform,
+                'deviceName': self.device_name,
+                'platformVersion': self.platform_version,
+                'isRealMobile': self.platform_config.get("isRealMobile", True),
+                'app': self.app
+            }
+            
+        elif self.run_type.lower() == "browserstack":
+            caps = {
+                'platform': self.platform,
+                'browser': self.platform_config.get("browser"),
+                'browserVersion': self.platform_config.get("browserVersion")
+            }
+        else:
+            raise ValueError(f"Unsupported platform type: {self.run_type}")
+
+        # Merge with optional capabilities from JSON config
+        if self.capabilities:
+            caps.update(self.capabilities)
+            
+        return caps
+
+    def get_server_url(self):
+        """Get appropriate server URL based on platform"""
+        if self.run_type.lower() == "lambdatest":
+            username = os.getenv("LT_USERNAME")
+            access_key = os.getenv("LT_ACCESS_KEY")
+            if not (username and access_key):
+                raise ValueError("LambdaTest credentials not found in environment variables")
+            return f"https://{username}:{access_key}@mobile-hub.lambdatest.com/wd/hub"
+            
+        elif self.run_type.lower() == "browserstack":
+            username = os.getenv("BS_USERNAME")
+            access_key = os.getenv("BS_ACCESS_KEY")
+            if not (username and access_key):
+                raise ValueError("BrowserStack credentials not found in environment variables")
+            return f"https://{username}:{access_key}@hub-cloud.browserstack.com/wd/hub"
+            
+        else:
+            return "http://127.0.0.1:4723"
+
+    def start_appium_service(self):
+        """Start Appium service if not running"""
+        try:
+            print(Fore.GREEN +"Starting Appium service...")
+            self.appium_service = AppiumService()
+            self.appium_service.start()
+            print(Fore.GREEN +"Appium service started successfully." +emoji.emojize(":✅:", language='alias'))
+        except Exception as e:
+            print(Fore.RED +f"Error starting Appium service: {e}")
+            raise
+
+    def init_driver(self):
+        """Initialize appropriate driver based on platform"""
+        try:
+            # Start Appium service for local mobile testing
+            if self.run_type.lower() in ["android", "ios"]:
+                self.start_appium_service()
+
+            final_capabilities = self.get_capabilities()
+            server_url = self.get_server_url()
+
+            print(Fore.GREEN +"Server URL:", server_url)
+            print(Fore.YELLOW +"Final Capabilities:", final_capabilities)
+            
+            options = AppiumOptions()
+            for key, value in final_capabilities.items():
+                options.set_capability(key, value)
+
+            self.driver = webdriver.Remote(
+                command_executor=server_url,
+                options=options
+            )
+            
+            assert self.driver is not None, "Appium driver failed to initialize"
+            print(Fore.GREEN +"Driver initialized successfully")
+            return self.driver
+            
+        except Exception as e:
+            print(Fore.RED +f"\nError initializing driver: {str(e)}")
+            if self.appium_service:
+                self.appium_service.stop()
+            raise
+
+    def cleanup(self):
+        """Cleanup method to properly close the app and driver"""
+        if self.driver:
+            try:
+                # Get the current package name (for Android)
+                if self.run_type.lower() == "android":
+                    current_package = self.driver.current_package
+                    self.driver.terminate_app(current_package)
+                
+                # For iOS (if needed)
+                elif self.run_type.lower() == "ios":
+                    current_bundle = self.driver.current_package
+                    self.driver.terminate_app(current_bundle)
+                
+            except Exception as e:
+                print(Fore.RED +f"Error during app termination: {e}")
+            
+            finally:
+                try:
+                    self.driver.quit()
+                except Exception as e:
+                    print(Fore.RED +f"Error during driver quit: {e}")
+                
+                # Stop Appium service
+                if self.appium_service:
+                    try:
+                        text_print("Stopping Appium service...", "⏹", "green")
+                        self.appium_service.stop()
+                        print()
+                        text_print("Appium service stopped.","🔚","green")
+                    except Exception as e:
+                        print(Fore.RED +f"Error stopping Appium service: {e}")
+
+    def init_alt_tester_driver(self, host="127.0.0.1", port=13000, app_name="__default__"):
+        """Initialize AltTester driver"""
+        return AltDriver(host=host, port=port, app_name=app_name)
+
+
+# Global instance of DriverFactory
+_driver_factory = None
+
+def init_driver():
+    """Initialize driver using factory"""
+    global _driver_factory
+    _driver_factory = DriverFactory()
+    return _driver_factory.init_driver()
+
+def cleanup_driver():
+    """Cleanup function to be called after tests"""
+    global _driver_factory
+    if _driver_factory:
+        _driver_factory.cleanup()
+        _driver_factory = None
+
 def init_alt_tester_driver(host="127.0.0.1", port=13000, app_name="__default__"):
-    alt_tester_driver = AltDriver(host=host, port=port, app_name=app_name)
-    return alt_tester_driver
-
-# Debugging output
-print("Final Appium Capabilities:", final_capabilities)
+    """Initialize AltTester driver using factory"""
+    driver_factory = DriverFactory()
+    return driver_factory.init_alt_tester_driver(host, port, app_name)
