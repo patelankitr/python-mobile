@@ -1,19 +1,31 @@
 
-Tech Stack
+# HexEngine - Mobile Automation Solution
 
-Pyhon: For scripting
+## Tech Stack
 
-Appium: For mobile automation.
+This document provides an overview of the technologies used in the automation framework.
 
-pytest: For test execution and reporting.
+## Python
+Used for scripting and writing automation logic.
 
-Selenium/WebDriver: Testing web views inside mobile apps.
+## Appium
+A tool for mobile automation, enabling interaction with mobile applications across different platforms.
 
-Allure Report: For test reporting.
+## pytest
+A framework for test execution and reporting, offering powerful features for writing scalable tests.
 
-Logging: To track execution flow and failures.
+## Selenium/WebDriver
+Used for testing web views inside mobile apps, ensuring proper functionality and compatibility.
 
-CI/CD: Integrate with Jenkins/GitHub Actions for automation.
+## Allure Report
+A test reporting tool that provides detailed insights into test execution results.
+
+## Logging
+Utilized to track execution flow and failures, aiding in debugging and analysis.
+
+## CI/CD
+Integrated with Jenkins/GitHub Actions to automate the testing process, ensuring continuous integration and deployment.
+
 
 
 get all installed packages
