@@ -3,21 +3,41 @@
   "config": {
     "android": {
       "platform": "android",
-      "app": "Callbreak_11th.apk",
-      "platformVersion": "13",
-      "deviceName": "b7eeffed",
+      "appPath/appPackage": "com.google.android.apps.tv.launcherx",
+      "platformVersion": "11",
+      "deviceName": "Smart TV",
+      "automationName": "UiAutomator2",
+      "appActivity": "com.google.android.apps.tv.launcherx.home.HomeActivity",
+      "capabilities": {
+
+        "appWaitDuration": 30000,
+        "newCommandTimeout": 60,
+        "noReset": true,
+        "autoGrantPermissions": true,
+        "dontStopAppOnReset": true
+      }
+    },
+    "androidTV": {
+      "platform": "android",
+      "appPath/appPackage": "com.google.android.apps.tv.launcherx",
+      "platformVersion": "11",
+      "deviceName": "Smart TV",
+      "automationName": "UiAutomator2",
+      "appActivity": "com.google.android.apps.tv.launcherx.home.HomeActivity",
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,
-        "noReset": false,
-        "autoGrantPermissions": true
+        "noReset": true,
+        "autoGrantPermissions": true,
+        "dontStopAppOnReset": true
       }
     },
-    "iOS": {
+      "iOS": {
       "platform": "iOS",
       "deviceName": "iPhone 11",
       "app": "app-release-2.0.1.ipa",
       "platformVersion": "15",
+      "automationName": "XCUITest",
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,

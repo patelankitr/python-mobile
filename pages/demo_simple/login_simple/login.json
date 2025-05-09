@@ -1,0 +1,71 @@
+{
+      "splash_screen_next_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"NEXT\")"
+      },
+      "get_started_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"GET STARTED\")"
+      },
+      "agree_and_continue_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"AGREE AND CONTINUE\")"
+      },
+      "select_your_country_title": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/select_country_title\")"
+      },
+      "india": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"India\")"
+      },
+      "basalt": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"Basalt\")"
+      },
+        "your_phone_number_title": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"Your phone number\")"
+      },
+        "phone_number_textbox": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/phoneNumberEditText\")"
+      },
+        "phone_number_error_message": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/validationErrorTextView\")"
+      },
+        "next_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/nextButton\")"
+      },
+        "your_security_pin_title": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().text(\"Your security PIN\")"
+      },
+    "security_pin_textbox": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/pinEditText\")"
+      },
+
+        "profile_setting_menu_icon": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"org.simple.clinic.staging:id/openSettings\")"
+      },
+        "logout_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().className(\"android.widget.Button\").instance(1)"
+      },
+
+        "logout_yes_button": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"android:id/button1\")"
+      },
+          "map_element ": {
+        "locator_type": "uiautomator",
+        "locator": "new UiSelector().resourceId(\"android:id/button1\")"
+      }
+
+
+
+}

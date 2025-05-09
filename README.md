@@ -50,3 +50,18 @@ To Install Packages from requirements.txt
 Emoji cheat sheet
 
 `https://www.webfx.com/tools/emoji-cheat-sheet`
+
+Methods:
+tap_on_element
+double_tap_on_element
+enter_text
+swipe_element_to_element
+swipe_by_direction
+swipe_by_coordinates
+text_print
+
+element_visible
+element_not_visible
+element_present
+long_press_element
+multi_tap

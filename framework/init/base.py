@@ -38,16 +38,19 @@ class DriverFactory:
         
         # Extract common values
         self.platform = self.platform_config.get("platform")
-        self.app = self.platform_config.get("app")
+        self.app = self.platform_config.get("appPath/appPackage")
         self.platform_version = self.platform_config.get("platformVersion")
         self.device_name = self.platform_config.get("deviceName")
+        self.automation_name = self.platform_config.get("automationName")
+        self.activity = self.platform_config.get("appActivity")
         self.capabilities = self.platform_config.get("capabilities", {})
 
-        text_print(f"run_type: {self.run_type}","✳")
-        text_print(f"platform: {self.platform}", "✳")
-        text_print(f"platform_version {self.platform_version}", "✳")
-        text_print(f"device_name {self.device_name}", "✳")
-        text_print(f"app {self.app}", "✳")
+        text_print(f"run_type: {self.run_type}","green")
+        text_print(f"platform: {self.platform}", "green")
+        text_print(f"platform_version {self.platform_version}", "green")
+        text_print(f"device_name {self.device_name}", "green")
+        text_print(f"app {self.app}", "green")
+        text_print(f"automation_name {self.automation_name}", "green")
 
     def get_project_root(self) -> Path:
         return Path(__file__).resolve().parent.parent
@@ -73,10 +76,17 @@ class DriverFactory:
                 'platformName': 'Android',
                 'deviceName': self.device_name,
                 'platformVersion': str(self.platform_version),
-                'app': self.get_app_path(),
-                'automationName': 'UiAutomator2'
+                'automationName': self.automation_name,
+                'appActivity': self.activity
             }
             
+            # Check if app path contains .apk
+            if '.apk' in str(self.app).lower():
+                caps['app'] = self.get_app_path()
+            else:
+                caps['appPackage'] = self.app
+
+
         elif self.run_type.lower() == "ios":
             # Required capabilities
             caps = {
@@ -84,7 +94,8 @@ class DriverFactory:
                 'deviceName': self.device_name,
                 'platformVersion': self.platform_version,
                 'app': self.get_app_path(),
-                'automationName': 'XCUITest'
+                'automationName': self.automation_name
+
             }
             
         elif self.run_type.lower() == "lambdatest":
@@ -136,7 +147,7 @@ class DriverFactory:
             print(Fore.GREEN +"Starting Appium service...")
             self.appium_service = AppiumService()
             self.appium_service.start()
-            print(Fore.GREEN +"Appium service started successfully." +emoji.emojize(":✅:", language='alias'))
+            print(Fore.GREEN +"Appium service started successfully." +emoji.emojize("✅", language='alias'))
         except Exception as e:
             print(Fore.RED +f"Error starting Appium service: {e}")
             raise
@@ -199,10 +210,9 @@ class DriverFactory:
                 # Stop Appium service
                 if self.appium_service:
                     try:
-                        text_print("Stopping Appium service...", "⏹", "green")
+                        print(Fore.GREEN + "Stopping Appium service..." + emoji.emojize("⏹", language='alias'))
                         self.appium_service.stop()
-                        print()
-                        text_print("Appium service stopped.","🔚","green")
+                        print(Fore.GREEN + "Appium service stopped." + emoji.emojize("🔚", language='alias'))
                     except Exception as e:
                         print(Fore.RED +f"Error stopping Appium service: {e}")
 

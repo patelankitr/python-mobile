@@ -63,4 +63,4 @@ class Wait:
             seconds (int/float): The number of seconds to wait
         """
         time.sleep(seconds)
-        text_print(f"Waited for {seconds} seconds","🔄","green")
+        text_print(f"Waited for {seconds} seconds","green")
