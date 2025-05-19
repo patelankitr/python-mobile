@@ -8,7 +8,7 @@ from framework.mobile.device import Device
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self._json_file_path = str(Path(__file__).parent.parent / "login_simple\login.json")
+        self._json_file_path = str(Path(__file__).parent.parent / "login_simple"/"login.json")
         self.element = Element(driver, self._json_file_path)
         self.wait = Wait(driver, self._json_file_path)
         self.verify = Verify(driver, self._json_file_path)

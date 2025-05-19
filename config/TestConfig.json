@@ -17,7 +17,7 @@
       "iOS": {
       "platform": "iOS",
       "deviceName": "iPhone 15",
-      "app": "TestApp.app",
+      "appPath/appPackage": "TestApp.app",
       "platformVersion": "18.4",
       "automationName": "XCUITest",
       "capabilities": {
