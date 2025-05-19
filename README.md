@@ -65,3 +65,24 @@ element_not_visible
 element_present
 long_press_element
 multi_tap
+
+
+## Android TV
+```
+    "androidTV": {
+      "platform": "android",
+      "appPath/appPackage": "com.google.android.apps.tv.launcherx",
+      "platformVersion": "11",
+      "deviceName": "Smart TV",
+      "automationName": "UiAutomator2",
+      "appActivity": "com.google.android.apps.tv.launcherx.home.HomeActivity",
+      "capabilities": {
+        "appWaitDuration": 30000,
+        "newCommandTimeout": 60,
+        "noReset": true,
+        "autoGrantPermissions": true,
+        "dontStopAppOnReset": true
+      }
+    }
+```
+
