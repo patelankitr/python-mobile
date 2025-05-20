@@ -45,12 +45,15 @@ class DriverFactory:
         self.activity = self.platform_config.get("appActivity")
         self.capabilities = self.platform_config.get("capabilities", {})
 
-        text_print(f"run_type: {self.run_type}","green")
-        text_print(f"platform: {self.platform}", "green")
-        text_print(f"platform_version {self.platform_version}", "green")
-        text_print(f"device_name {self.device_name}", "green")
-        text_print(f"app {self.app}", "green")
-        text_print(f"automation_name {self.automation_name}", "green")
+        text_print("\n📱 Device Info","green")
+        text_print("------------------------")
+        text_print(f"run_type : {self.run_type}","green")
+        text_print(f"platform : {self.platform}", "green")
+        text_print(f"platform_version : {self.platform_version}", "green")
+        text_print(f"device_name : {self.device_name}", "green")
+        text_print(f"app/appPackage : {self.app}", "green")
+        text_print(f"automation_name : {self.automation_name}", "green")
+        text_print("------------------------\n")
 
     def get_project_root(self) -> Path:
         return Path(__file__).resolve().parent.parent
@@ -122,6 +125,24 @@ class DriverFactory:
             
         return caps
 
+    def is_real_device(self):
+        capabilities = self.driver.capabilities
+        platform = capabilities.get("platformName", "").lower()
+
+        if platform == "android":
+            device_name = capabilities.get("deviceName", "").lower()
+            avd = capabilities.get("avd")  # Present only on emulators
+            is_real = not (device_name.startswith("emulator") or avd)
+
+        elif platform == "ios":
+            is_real = capabilities.get("isRealMobile")  # Default True if missing
+
+        else:
+            is_real = False
+
+        print(f"Device Type : {'Real Device' if is_real else 'Emulator/Simulator'}")
+        return is_real
+
     def get_server_url(self):
         """Get appropriate server URL based on platform"""
         if self.run_type.lower() == "lambdatest":
@@ -176,6 +197,7 @@ class DriverFactory:
             
             assert self.driver is not None, "Appium driver failed to initialize"
             print(Fore.GREEN +"Driver initialized successfully")
+            self.is_real_device()
             return self.driver
             
         except Exception as e:
@@ -230,12 +252,41 @@ def init_driver():
     _driver_factory = DriverFactory()
     return _driver_factory.init_driver()
 
+
 def cleanup_driver():
-    """Cleanup function to be called after tests"""
     global _driver_factory
-    if _driver_factory:
-        _driver_factory.cleanup()
-        _driver_factory = None
+    if _driver_factory and hasattr(_driver_factory, "driver"):
+        driver = _driver_factory.driver
+        try:
+            # Attempt to terminate the app before quitting the driver
+            platform = driver.capabilities.get("platformName", "").lower()
+
+            if platform == "android":
+                current_package = driver.current_package
+                driver.terminate_app(current_package)
+
+            elif platform == "ios":
+                # Try to get bundle ID from capabilities or active app
+                bundle_id = driver.capabilities.get("bundleId")
+                if not bundle_id:
+                    try:
+                        bundle_id = driver.execute_script("mobile: activeAppInfo").get("bundleId")
+                    except Exception as info_err:
+                        print(f"Could not retrieve active bundle ID: {info_err}")
+
+                if bundle_id:
+                    driver.terminate_app(bundle_id)
+
+        except Exception as e:
+            print(f"Error during app termination: {e}")
+
+        finally:
+            try:
+                driver.quit()
+            except Exception as e:
+                print(f"Error during driver quit: {e}")
+            _driver_factory = None
+
 
 def init_alt_tester_driver(host="127.0.0.1", port=13000, app_name="__default__"):
     """Initialize AltTester driver using factory"""

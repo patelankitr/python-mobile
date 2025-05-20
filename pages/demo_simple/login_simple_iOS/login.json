@@ -1,0 +1,20 @@
+{
+      "first_textbox": {
+        "locator_type": "xpath",
+        "locator": "//XCUIElementTypeTextField[@name=\"IntegerA\"]"
+      },
+        "second_textbox": {
+        "locator_type": "xpath",
+        "locator": "//XCUIElementTypeTextField[@name=\"IntegerB\"]"
+      },
+          "sum_button": {
+        "locator_type": "xpath",
+        "locator": "//XCUIElementTypeButton[@name=\"ComputeSumButton\"]"
+      },
+          "sum_value": {
+        "locator_type": "xpath",
+        "locator": "//XCUIElementTypeStaticText[@name=\"Answer\"]"
+      }
+
+
+}

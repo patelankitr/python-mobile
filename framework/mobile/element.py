@@ -15,7 +15,7 @@ class Element:
 
 
     def __init__(self, driver, file_path):
-        text_print(f"Initializing Element class with file_path: {file_path}",'green')  # Debug log
+        text_print(f"\n Initializing Element class with file_path: {file_path}",'green')  # Debug log
         if not driver:
             raise ValueError("Driver cannot be None")
         if not file_path:
