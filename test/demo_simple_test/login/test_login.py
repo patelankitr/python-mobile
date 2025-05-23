@@ -16,8 +16,8 @@ def test_verify_login_functionality(driver):
     login = LoginPage(driver)
 
     login.select_india_from_the_list() #com.google.android.apps.maps
-    #login.select_basalt_clinic()
-    #login.enter_mobile_number()
+    login.select_basalt_clinic()
+    login.enter_mobile_number()
     #login.tap_on_next_button()
     #login.enter_security_pin()
     #login.verify_setting_icon()

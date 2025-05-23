@@ -4,6 +4,7 @@ from framework.mobile.element import Element
 from framework.mobile.verify import Verify
 from framework.mobile.prints import text_print
 from framework.mobile.device import Device
+from framework.readers.fileReader import FileReader
 
 class LoginPage:
     def __init__(self, driver):
@@ -37,15 +38,24 @@ class LoginPage:
     def select_basalt_clinic(self):
         self.element.tap_on_element('basalt')
 
+
     def enter_mobile_number(self):
-        self.element.multi_tap('next_button',2)
+        phone_to_enter = "9090909090"  # Default fallback
+        sheetName = 'Sheet2'
+        cellName = 'A3'
+        cellValue = FileReader.get_cell_value_from_excel(sheetName, cellName)
+        FileReader.set_cell_value_in_excel(sheetName, "A11", "Ritik")
+       
+       
+        # Proceed with mobile app interaction
+        self.element.multi_tap('next_button', 2)
         self.element.get_text('your_phone_number_title')
-        #self.element.get_attribute('your_phone_number_title','Your phone number')
         self.verify.element_present('your_phone_number_title')
-        self.element.long_press_element('phone_number_textbox',duration=5000)
-        self.element.enter_text('phone_number_textbox','9090909090')
+        self.element.long_press_element('phone_number_textbox', duration=5000)
+        self.element.enter_text('phone_number_textbox', cellValue)
         self.wait.wait_for_seconds(5)
-        self.element.clear_and_enter_text('phone_number_textbox','9090909090')
+        self.element.clear_and_enter_text('phone_number_textbox', cellValue)
+    
 
     def tap_on_next_button(self):
         self.element.tap_on_element('next_button')
