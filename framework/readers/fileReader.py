@@ -7,8 +7,8 @@ class FileReader:
     _base_files_path = Path(__file__).parent.parent.parent / 'files' # Assumes 'files' is at project root
 
     @staticmethod
-    def get_cell_value_from_excel(sheet_name, cell_name):
-        excel_file_path = FileReader._base_files_path / 'fill-test-data-.xlsx'
+    def get_cell_value_from_excel(file_name, sheet_name, cell_name):
+        excel_file_path = FileReader._base_files_path / file_name
         # print(f"[DEBUG] Excel file path being accessed for reading: {excel_file_path}") # Optional debug print
         try:
             if not excel_file_path.exists():
@@ -34,8 +34,8 @@ class FileReader:
             return None
 
     @staticmethod
-    def set_cell_value_in_excel(sheet_name, cell_name, value_to_enter):
-        excel_file_path = FileReader._base_files_path / 'fill-test-data-.xlsx'
+    def set_cell_value_in_excel(file_name, sheet_name, cell_name, value_to_enter):
+        excel_file_path = FileReader._base_files_path / file_name
         # print(f"[DEBUG] Excel file path being accessed for writing: {excel_file_path}") # Optional debug print
         try:
             if not excel_file_path.exists():
@@ -61,7 +61,41 @@ class FileReader:
                 wb.close()
             return False
 
-# Example usage (optional, for testing directly in this file):
+        # df = pd.read_csv(csv_path)
+        # text_print(f"CSV file found at {df}")
+        # val = df.at[0, 'phone_number']
+        # val = str(val)  # <- Convert it to string
+    
+    @staticmethod
+    def get_cell_value_from_csv(file_name, row_index, column_name):
+        csv_path = FileReader._base_files_path / file_name
+        # text_print(f"CSV file found at {csv_path}")
+        try:
+            if not csv_path.exists():
+                text_print(f"Error: CSV file not found at {csv_path}")
+                return None
+            df = pd.read_csv(csv_path)
+            value = df.at[row_index, column_name]
+            return str(value) if value is not None else None
+        except Exception as e:
+            text_print(f"Error reading CSV file: {e}")
+            return None
+
+    @staticmethod
+    def set_cell_value_in_csv(file_name, row_index, column_name, value_to_enter):
+        csv_path = FileReader._base_files_path / file_name
+        try:
+            if not csv_path.exists():
+                text_print(f"Error: CSV file not found at {csv_path}")
+                return False
+            df = pd.read_csv(csv_path)
+            df.at[row_index, column_name] = value_to_enter
+            df.to_csv(csv_path, index=False)
+            text_print(f"Updated {column_name} at row {row_index} to '{new_value}' in {file_name}")
+            return True
+        except Exception as e:
+            text_print(f"Error writing to CSV file: {e}")
+            return False# Example usage (optional, for testing directly in this file):
 # if __name__ == '__main__':
 #     # Test reading
 #     sheet_to_read = 'Sheet2' # Make sure this sheet exists or adjust

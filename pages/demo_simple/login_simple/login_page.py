@@ -1,4 +1,5 @@
 from pathlib import Path
+import pandas as pd
 from framework.mobile.wait import Wait
 from framework.mobile.element import Element
 from framework.mobile.verify import Verify
@@ -7,6 +8,7 @@ from framework.mobile.device import Device
 from framework.readers.fileReader import FileReader
 
 class LoginPage:
+
     def __init__(self, driver):
         self.driver = driver
         self._json_file_path = str(Path(__file__).parent.parent / "login_simple"/"login.json")
@@ -33,33 +35,39 @@ class LoginPage:
         self.element.tap_on_element('india')
         self.element.stop_screen_recording('login_test_recording.mp4')
         self.element.get_device_logs()
-
-
+    
     def select_basalt_clinic(self):
         self.element.tap_on_element('basalt')
 
-
     def enter_mobile_number(self):
-        phone_to_enter = "9090909090"  # Default fallback
-        sheetName = 'Sheet2'
-        cellName = 'A3'
-        cellValue = FileReader.get_cell_value_from_excel(sheetName, cellName)
-        FileReader.set_cell_value_in_excel(sheetName, "A11", "Ritik")
-       
-       
+        value = "9090909090"  # Default fallback
+        enterFileName = 'fill-test-data.csv'
+        extension = Path(enterFileName).suffix
+        
+        if extension == '.xlsx':
+            sheetName = 'Sheet2'
+            cellName = 'A3'
+            value = FileReader.get_cell_value_from_excel(enterFileName, sheetName, cellName)
+            # FileReader.set_cell_value_in_excel(enterFileName, sheetName, 'A15', "QSG-3")
+
+        if extension == '.csv':
+            row_index = 0
+            column_name = 'phone_number'
+            value = FileReader.get_cell_value_from_csv(enterFileName, row_index, column_name)
+            # FileReader.set_cell_value_in_csv(enterFileName, row_index, 2, 'Testing')
+            text_print(f"CSV file found at {value}")
+
         # Proceed with mobile app interaction
         self.element.multi_tap('next_button', 2)
         self.element.get_text('your_phone_number_title')
         self.verify.element_present('your_phone_number_title')
         self.element.long_press_element('phone_number_textbox', duration=5000)
-        self.element.enter_text('phone_number_textbox', cellValue)
+        self.element.enter_text('phone_number_textbox', value)
         self.wait.wait_for_seconds(5)
-        self.element.clear_and_enter_text('phone_number_textbox', cellValue)
-    
+        self.element.clear_and_enter_text('phone_number_textbox', value)
 
     def tap_on_next_button(self):
         self.element.tap_on_element('next_button')
-
 
     def enter_security_pin(self):
         self.element.enter_text('security_pin_textbox','0000')
@@ -73,4 +81,3 @@ class LoginPage:
     def tap_on_logout_button(self):
         self.element.tap_on_element('logout_button')
         self.element.tap_on_element('logout_yes_button')
-
