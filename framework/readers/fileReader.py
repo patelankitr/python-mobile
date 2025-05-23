@@ -7,20 +7,6 @@ class FileReader:
     _base_files_path = Path(__file__).parent.parent.parent / 'files' # Assumes 'files' is at project root
 
     @staticmethod
-    def read_xlsx(file_name):
-        file_path = FileReader._base_files_path / file_name
-        try:
-            if not file_path.exists():
-                text_print(f"Error: File not found at {file_path}")
-                return None
-            df = pd.read_excel(file_path)
-            text_print(f"Successfully read {file_name}")
-            return df
-        except Exception as e:
-            text_print(f"Error reading Excel file {file_name}: {e}")
-            return None
-
-    @staticmethod
     def get_cell_value_from_excel(sheet_name, cell_name):
         excel_file_path = FileReader._base_files_path / 'fill-test-data-.xlsx'
         # print(f"[DEBUG] Excel file path being accessed for reading: {excel_file_path}") # Optional debug print
