@@ -17,6 +17,7 @@ class LoginPage:
 
     def select_india_from_the_list(self):
         self.device.get_device_battery_level()
+        #self.device.unlock_device(password='0000')
         #self.device.rotate_device('LANDSCAPE')
         self.element.start_screen_recording(quality='medium')
         self.element.take_element_screenshot('splash_screen_next_button','splash_screen_next_button.png')
@@ -32,6 +33,7 @@ class LoginPage:
         self.element.tap_on_element('india')
         self.element.stop_screen_recording('login_test_recording.mp4')
         self.element.get_device_logs()
+        #self.device.lock_device()
 
 
     def select_basalt_clinic(self):

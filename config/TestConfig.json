@@ -10,7 +10,7 @@
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,
-        "noReset": true,
+        "noReset": false,
         "autoGrantPermissions": true
       }
     },
