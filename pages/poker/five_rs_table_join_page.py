@@ -10,7 +10,7 @@ init_device("Android")
 # install("D:\\Downloads\\Callbreak_11th.apk")
 start_app("best.bulbsmash.cash")
 
-def run_poco_test():
+def test_run_poco_test():
     poco = AndroidUiautomationPoco(use_airtest_input=True, screenshot_each_action=False)
     sleep(5.0)
     poco("Sign in")

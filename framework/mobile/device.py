@@ -48,3 +48,58 @@ class Device:
             
         except Exception as e:
             raise Exception(f"Error rotating device: {str(e)}")
+
+    def lock_device(self, duration=None):
+        """
+        Locks the device for a specified duration or indefinitely.
+
+        Args:
+            duration (int, optional): Duration in seconds to keep device locked. 
+                                    If None, device stays locked until unlock_device is called.
+        """
+        try:
+            # Lock the device
+            self.driver.lock()
+            text_print("Device locked", 'green')
+            
+            # If duration specified, wait and then unlock
+            if duration:
+                import time
+                time.sleep(duration)
+                self.driver.unlock()
+                text_print(f"Device automatically unlocked after {duration} seconds", 'green')
+            
+        except Exception as e:
+            raise Exception(f"Error locking device: {str(e)}")
+
+    def unlock_device(self, password=None):
+        """
+        Unlocks the device. If device requires password/PIN, it can be provided.
+
+        Args:
+            password (str, optional): Password/PIN to unlock the device if required
+        """
+        try:
+            # Check if device is locked
+            if self.driver.is_locked():
+                # First unlock the screen
+                self.driver.unlock()
+                
+                # If password provided, enter it using keycode events
+                if password:
+                    for digit in password:
+                        # Convert string digit to integer keycode (0 = 7, 1 = 8, etc.)
+                        keycode = int(digit) + 7
+                        self.driver.press_keycode(keycode)
+                    
+                    # Press enter/confirm key
+                    self.driver.press_keycode(66)  # KEYCODE_ENTER
+                
+                text_print("Device unlocked successfully", 'green')
+            else:
+                text_print("Device is already unlocked", 'green')
+            
+        except Exception as e:
+            raise Exception(f"Error unlocking device: {str(e)}")
+
+
