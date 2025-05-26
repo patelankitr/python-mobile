@@ -7,7 +7,7 @@ from framework.mobile.prints import text_print
 class LoginPage:
     def __init__(self, driver):
         self.driver = driver
-        self._json_file_path = str(Path(__file__).parent.parent / "login\login_page.json")
+        self._json_file_path = str(Path(__file__).parent.parent / "login"/"login_page.json")
         text_print(f"JSON file_path: {self._json_file_path}")
         self.element = Element(driver, self._json_file_path)
         self.wait = Wait(driver, self._json_file_path)

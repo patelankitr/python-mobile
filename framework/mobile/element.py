@@ -1,6 +1,6 @@
 import base64
 import json
-
+from pathlib import Path
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
 from framework.mobile.prints import text_print
 from framework.init.base import locator_map
+from framework.readers.fileReader import FileReader
 
 class Element:
 
@@ -200,7 +201,75 @@ class Element:
             except TimeoutException:
                 raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
             except Exception as e:
-                raise Exception(f"Error in clear and enter text operation for '{locator_name}': {str(e)}")
+                raise Exception(f"Error in clear and enter text operation for '{locator_name}': {str(e)}")    
+            
+    def clear_text(self, locator_name, timeout=10):
+        """
+        Clears existing text and enters new text into the specified element.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            timeout (int): Maximum time to wait for element presence (default 10 seconds)
+        """
+        try:
+            locator = self.get_locator(locator_name)
+            locator_type = locator.get("locator_type").lower()
+            locator_value = locator.get("locator")
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                raise ValueError(f"Unsupported locator type: {locator_type}")
+            # Wait for element to be present and interactable
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located((by_type, locator_value))
+            )
+            # Clear existing text
+            element.clear()
+            text_print(f"Cleared text from {locator_name}", 'green')
+
+        except TimeoutException:
+            raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
+        except Exception as e:
+            raise Exception(f"Error in clear text operation for '{locator_name}': {str(e)}")        
+    def enter_text_from_file(self, locator_name, file_name, cell_reference, sheet_name=None):
+        """
+        Reads a value from a file (CSV or Excel) and enters it into the specified element.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file.
+            file_name (str): Name of the file to read the data from (.csv or .xlsx).
+            cell_reference (str): Cell reference (e.g., 'A1' for Excel, or column name for CSV).
+            sheet_name (str, optional): Name of the sheet (required for Excel files).
+
+        Raises:
+            Exception: If the value is empty, or if file type is unsupported or reading fails.
+        """
+        try:
+            extension = Path(file_name).suffix.lower()
+            text_print(f"Detected file extension: {extension}", 'blue')
+
+            if extension in ['.xlsx', '.xls']:
+                if not sheet_name:
+                    raise ValueError("sheet_name must be provided for Excel files.")
+                value = FileReader.get_cell_value_from_excel(file_name, sheet_name, cell_reference)
+                text_print(f"Value from Excel ({sheet_name}:{cell_reference}): {value}", 'blue')
+
+            elif extension == '.csv':
+                value = FileReader.read_csv_cell(file_name, cell_reference)
+                text_print(f"Value from CSV column '{cell_reference}': {value}", 'blue')
+
+            else:
+                raise ValueError(f"Unsupported file extension: {extension}")
+
+            # Check if value is None or empty
+            if value is None or str(value).strip() == "":
+                raise ValueError(f"No value found in file '{file_name}' at reference '{cell_reference}'")
+
+            self.enter_text(locator_name, value)
+            text_print(f"Entered text into '{locator_name}': {value}", 'green')
+
+        except Exception as e:
+            raise Exception(f"Error in enter_text_from_file: {str(e)}")
+
 
     # swipe from one element to another
     def swipe_element_to_element(self, start_locator_name, end_locator_name, duration=None, timeout=10):
