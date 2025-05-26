@@ -1,5 +1,4 @@
 from pathlib import Path
-import pandas as pd
 from framework.mobile.wait import Wait
 from framework.mobile.element import Element
 from framework.mobile.verify import Verify
@@ -40,29 +39,12 @@ class LoginPage:
         self.element.tap_on_element('basalt')
 
     def enter_mobile_number(self):
-        value = "9090909090"  # Default fallback
-        enterFileName = 'fill-test-data.csv'
-        extension = Path(enterFileName).suffix
-        
-        if extension == '.xlsx':
-            sheetName = 'Sheet2'
-            cellName = 'A3'
-            value = FileReader.get_cell_value_from_excel(enterFileName, sheetName, cellName)
-            # FileReader.set_cell_value_in_excel(enterFileName, sheetName, 'A15', "QSG-3")
-
-        if extension == '.csv':
-            row_index = 0
-            column_name = 'phone_number'
-            value = FileReader.get_cell_value_from_csv(enterFileName, row_index, column_name)
-            # FileReader.set_cell_value_in_csv(enterFileName, row_index, 2, 'Testing')
-            text_print(f"CSV file found at {value}")
-
         # Proceed with mobile app interaction
         self.element.multi_tap('next_button', 2)
         self.element.get_text('your_phone_number_title')
         self.verify.element_present('your_phone_number_title')
         self.element.long_press_element('phone_number_textbox', duration=5000)
-        self.element.enter_text('phone_number_textbox', value)
+        self.element.enter_text_from_file(locator_name='phone_number_textbox', file_name='fill-test-data.csv', cell_reference='A1', sheet_name = '')
         self.wait.wait_for_seconds(5)
         self.element.clear_and_enter_text('phone_number_textbox', value)
 

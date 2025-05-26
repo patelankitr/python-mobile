@@ -1,7 +1,9 @@
 import openpyxl
 import pandas as pd
+import re
 from pathlib import Path
 from framework.mobile.prints import text_print
+from openpyxl.utils import column_index_from_string
 
 class FileReader:
     _base_files_path = Path(__file__).parent.parent.parent / 'files' # Assumes 'files' is at project root
@@ -82,6 +84,103 @@ class FileReader:
             return None
 
     @staticmethod
+    def read_csv_cell(filename, cellname='A1'):
+        """
+        Reads a value from a specific cell in a CSV file using Excel-style cell names.
+
+        Args:
+            filename (str): The name of the CSV file (relative to _base_files_path).
+            cellname (str): The Excel-style cell name (e.g., 'A1', 'B2'). Defaults to 'A1'.
+
+        Returns:
+            str or None: The value of the cell as a string, or None if the cell is out of bounds.
+
+        Raises:
+            ValueError: If the cell name is invalid.
+            FileNotFoundError: If the specified file does not exist.
+            RuntimeError: For other file operation or data access errors.
+        """
+        file_path = FileReader._base_files_path / filename
+
+        # Convert cell reference like "B2" → row 1, column 1
+        match = re.match(r"([A-Za-z]+)([0-9]+)", cellname)
+        if not match:
+            raise ValueError(f"Invalid cell name: {cellname}")
+
+        col_letters, row_number = match.groups()
+        try:
+            col_index = column_index_from_string(col_letters) - 1  # 0-based
+            row_index = int(row_number) - 1  # 0-based
+        except ValueError:
+             raise ValueError(f"Invalid cell name format: {cellname}")
+
+        try:
+            # Read CSV
+            df = pd.read_csv(file_path)
+
+            # Safely return value if it exists
+            if row_index < len(df.index) and col_index < len(df.columns):
+                return str(df.iat[row_index, col_index])
+            else:
+                # Return None for out of bounds as per original logic
+                return None
+
+        except FileNotFoundError:
+            raise FileNotFoundError(f"File not found: {file_path}")
+        except IndexError as e:
+             # Catch IndexError specifically if df.iat raises it for out of bounds
+             # Although the if condition above should prevent this, adding for robustness
+             raise RuntimeError(f"Error accessing cell {cellname} in file {file_path}: {e}")
+        except Exception as e:
+            # Catch any other potential errors during read or access
+            raise RuntimeError(f"Error reading CSV file {file_path}: {e}")
+
+    @staticmethod
+    def write_csv_cell(filename, cellname, value):
+        """
+        Writes a value to a specific cell in a CSV file using Excel-style cell reference.
+
+        Args:
+            filename (str): The name of the CSV file.
+            cellname (str): The Excel-style cell reference (e.g., 'A1', 'B2').
+            value (str): The value to write to the cell.
+
+        Raises:
+            ValueError: If the cell name is invalid or the cell is out of bounds.
+        """
+        filepath = FileReader._base_files_path / filename
+
+        # Convert cell reference like "B2" → row 1, column 1
+        match = re.match(r"([A-Za-z]+)([0-9]+)", cellname)
+        if not match:
+            raise ValueError(f"Invalid cell name: {cellname}")
+
+        col_letters, row_number = match.groups()
+        col_index = column_index_from_string(col_letters) - 1  # 0-based
+        row_index = int(row_number) - 1  # 0-based
+
+        try:
+            # Read CSV
+            df = pd.read_csv(filepath)
+
+            # Check if row and column are within bounds
+            if row_index >= len(df.index) or col_index >= len(df.columns):
+                 # Optionally, you could resize the DataFrame here if needed
+                 # For now, raising an error for out of bounds write
+                 raise ValueError(f"Cell {cellname} is out of bounds for CSV file {filename}")
+
+            # Update the value
+            df.iat[row_index, col_index] = value
+
+            # Write the modified DataFrame back to CSV
+            df.to_csv(filepath, index=False)
+
+        except FileNotFoundError:
+            raise FileNotFoundError(f"CSV file not found: {filepath}")
+        except Exception as e:
+            raise RuntimeError(f"Error writing to CSV file {filepath}: {e}")
+
+    @staticmethod
     def set_cell_value_in_csv(file_name, row_index, column_name, value_to_enter):
         csv_path = FileReader._base_files_path / file_name
         try:
@@ -96,37 +195,6 @@ class FileReader:
         except Exception as e:
             text_print(f"Error writing to CSV file: {e}")
             return False# Example usage (optional, for testing directly in this file):
-# if __name__ == '__main__':
-#     # Test reading
-#     sheet_to_read = 'Sheet2' # Make sure this sheet exists or adjust
-#     cell_to_read = 'A1' # Make sure this cell has data or adjust
-#     retrieved_value = FileReader.get_cell_value_from_excel(sheet_to_read, cell_to_read)
-#     if retrieved_value is not None:
-#         text_print(f"Value from '{sheet_to_read}|{cell_to_read}': {retrieved_value}")
-#     else:
-#         text_print(f"Could not read from '{sheet_to_read}|{cell_to_read}'.")
 
-#     # Test writing
-#     sheet_to_write = 'Sheet2' 
-#     cell_to_write = 'C5' # Cell to write to
-#     value_to_write = 'Hello from Python!'
-#     success = FileReader.set_cell_value_in_excel(sheet_to_write, cell_to_write, value_to_write)
-#     if success:
-#         text_print(f"Write operation successful for '{sheet_to_write}|{cell_to_write}'.")
-#         # Optionally, verify by reading back
-#         written_value = FileReader.get_cell_value_from_excel(sheet_to_write, cell_to_write)
-#         text_print(f"Read back value from '{sheet_to_write}|{cell_to_write}': {written_value}")
-#     else:
-#         text_print(f"Write operation failed for '{sheet_to_write}|{cell_to_write}'.")
-
-#     # Test writing to a new sheet
-#     new_sheet_name = 'MyNewSheet'
-#     new_cell_to_write = 'B2'
-#     new_value = 12345
-#     success_new_sheet = FileReader.set_cell_value_in_excel(new_sheet_name, new_cell_to_write, new_value)
-#     if success_new_sheet:
-#         text_print(f"Write operation successful for '{new_sheet_name}|{new_cell_to_write}'.")
-#         read_back_new = FileReader.get_cell_value_from_excel(new_sheet_name, new_cell_to_write)
-#         text_print(f"Read back value from '{new_sheet_name}|{new_cell_to_write}': {read_back_new}")
 
         
