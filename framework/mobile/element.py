@@ -203,6 +203,33 @@ class Element:
             except Exception as e:
                 raise Exception(f"Error in clear and enter text operation for '{locator_name}': {str(e)}")    
             
+    def clear_text(self, locator_name, timeout=10):
+        """
+        Clears existing text and enters new text into the specified element.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            timeout (int): Maximum time to wait for element presence (default 10 seconds)
+        """
+        try:
+            locator = self.get_locator(locator_name)
+            locator_type = locator.get("locator_type").lower()
+            locator_value = locator.get("locator")
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                raise ValueError(f"Unsupported locator type: {locator_type}")
+            # Wait for element to be present and interactable
+            element = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located((by_type, locator_value))
+            )
+            # Clear existing text
+            element.clear()
+            text_print(f"Cleared text from {locator_name}", 'green')
+
+        except TimeoutException:
+            raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
+        except Exception as e:
+            raise Exception(f"Error in clear text operation for '{locator_name}': {str(e)}")        
     def enter_text_from_file(self, locator_name, file_name, cell_reference, sheet_name=None):
         """
         Reads a value from a file (CSV or Excel) and enters it into the specified element.

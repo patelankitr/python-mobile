@@ -44,9 +44,11 @@ class LoginPage:
         self.element.get_text('your_phone_number_title')
         self.verify.element_present('your_phone_number_title')
         self.element.long_press_element('phone_number_textbox', duration=5000)
+        self.element.enter_text('phone_number_textbox', '9876543210')
+        self.element.clear_text('phone_number_textbox')
         self.element.enter_text_from_file(locator_name='phone_number_textbox', file_name='fill-test-data.csv', cell_reference='A1', sheet_name = '')
         self.wait.wait_for_seconds(5)
-        self.element.clear_and_enter_text('phone_number_textbox', value)
+        self.element.clear_and_enter_text('phone_number_textbox', '9876543210')
 
     def tap_on_next_button(self):
         self.element.tap_on_element('next_button')
