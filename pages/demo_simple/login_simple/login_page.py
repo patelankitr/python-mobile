@@ -4,8 +4,10 @@ from framework.mobile.element import Element
 from framework.mobile.verify import Verify
 from framework.mobile.prints import text_print
 from framework.mobile.device import Device
+from framework.readers.fileReader import FileReader
 
 class LoginPage:
+
     def __init__(self, driver):
         self.driver = driver
         self._json_file_path = str(Path(__file__).parent.parent / "login_simple"/"login.json")
@@ -32,24 +34,24 @@ class LoginPage:
         self.element.tap_on_element('india')
         self.element.stop_screen_recording('login_test_recording.mp4')
         self.element.get_device_logs()
-
-
+    
     def select_basalt_clinic(self):
         self.element.tap_on_element('basalt')
 
     def enter_mobile_number(self):
-        self.element.multi_tap('next_button',2)
+        # Proceed with mobile app interaction
+        self.element.multi_tap('next_button', 2)
         self.element.get_text('your_phone_number_title')
-        #self.element.get_attribute('your_phone_number_title','Your phone number')
         self.verify.element_present('your_phone_number_title')
-        self.element.long_press_element('phone_number_textbox',duration=5000)
-        self.element.enter_text('phone_number_textbox','9090909090')
+        self.element.long_press_element('phone_number_textbox', duration=5000)
+        self.element.enter_text('phone_number_textbox', '9876543210')
+        self.element.clear_text('phone_number_textbox')
+        self.element.enter_text_from_file(locator_name='phone_number_textbox', file_name='fill-test-data.csv', cell_reference='A1', sheet_name = '')
         self.wait.wait_for_seconds(5)
-        self.element.clear_and_enter_text('phone_number_textbox','9090909090')
+        self.element.clear_and_enter_text('phone_number_textbox', '9876543210')
 
     def tap_on_next_button(self):
         self.element.tap_on_element('next_button')
-
 
     def enter_security_pin(self):
         self.element.enter_text('security_pin_textbox','0000')
@@ -63,4 +65,3 @@ class LoginPage:
     def tap_on_logout_button(self):
         self.element.tap_on_element('logout_button')
         self.element.tap_on_element('logout_yes_button')
-

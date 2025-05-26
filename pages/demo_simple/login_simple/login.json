@@ -21,7 +21,7 @@
       },
       "basalt": {
         "locator_type": "uiautomator",
-        "locator": "new UiSelector().text(\"Basalt\")"
+        "locator": "new UiSelector().text(\"Goa\")"
       },
         "your_phone_number_title": {
         "locator_type": "uiautomator",
