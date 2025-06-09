@@ -1,6 +1,8 @@
 import base64
 import json
+import os
 from pathlib import Path
+from utils.screenshots import highlight_element
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions import interaction
 from selenium.webdriver.common.actions.action_builder import ActionBuilder
@@ -12,8 +14,17 @@ from framework.mobile.prints import text_print
 from framework.init.base import locator_map
 from framework.readers.fileReader import FileReader
 
+CONFIG_PATH = "config/TestConfig.json"
+
 class Element:
 
+    @staticmethod
+    def load_config():
+        if not os.path.exists(CONFIG_PATH):
+            print(f"❌ Config file '{CONFIG_PATH}' not found.")
+            sys.exit(1)
+        with open(CONFIG_PATH) as f:
+            return json.load(f)
 
     def __init__(self, driver, file_path):
         text_print(f"\n Initializing Element class with file_path: {file_path}",'green')  # Debug log
@@ -66,6 +77,12 @@ class Element:
             element = WebDriverWait(self.driver, timeout).until(
                 EC.element_to_be_clickable((by_type, locator_value))
             )
+            config = self.load_config()
+            use_highlight_element = config["config"].get("hightlight_element", False)
+            if use_highlight_element:
+                # 🔴 Capture screenshot with red box before click
+                highlight_element(self.driver, element, label=locator_name)
+
             element.click()
             text_print(f"Clicked on {locator_name}",'green')
         except TimeoutException:
@@ -162,6 +179,11 @@ class Element:
             )
             element.clear()
             element.send_keys(text_to_enter)
+            config = self.load_config()
+            use_highlight_element = config["config"].get("hightlight_element", False)
+            if use_highlight_element:
+                # 🔴 Capture screenshot with red box before click
+                highlight_element(self.driver, element, label=locator_name)
             text_print(f"Entered text in {locator_name}: {text_to_enter}", 'green')
         except TimeoutException:
             raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
