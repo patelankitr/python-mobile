@@ -1,6 +1,10 @@
 {
   "run": "android",
   "config": {
+    "web": {
+      "platform": "web",
+      "browser": "chrome"
+      },
     "android": {
       "platform": "android",
       "appPath/appPackage": "org-simple-clinic.apk",
