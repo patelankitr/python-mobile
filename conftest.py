@@ -9,6 +9,7 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+from framework.init.base import cleanup_web_driver_session # Import the cleanup function
 
 # @pytest_wrapper.hookimpl(hookwrapper=True)
 @pytest.hookimpl(hookwrapper=True)
@@ -34,8 +35,10 @@ def pytest_runtest_makereport(item, call):
                 attachment_type=allure.attachment_type.PNG
             )
 
-SCREENSHOT_DIR = "screenshots"
-RESULTS_DIR = "results"
+# SCREENSHOT_DIR = "screenshots"
+SCREENSHOT_DIR = os.path.join("utils", "highlight_element")
+# RESULTS_DIR = "results"
+RESULTS_DIR = os.path.join("utils", "results")
 def pytest_sessionstart(session):
     if os.path.exists(SCREENSHOT_DIR):
         shutil.rmtree(SCREENSHOT_DIR)
@@ -46,40 +49,49 @@ def pytest_sessionstart(session):
     os.makedirs(SCREENSHOT_DIR, exist_ok=True)
     os.makedirs(RESULTS_DIR, exist_ok=True)
 
-def pytest_cmdline_main(config):
-    """
-    This hook is called *instead* of pytest's normal main entry
-    if it returns a non-None integer. We use it to redirect
-    -m smokey invocations into our runner.
-    """
+@pytest.fixture(scope="session", autouse=True)
+def web_driver_session_cleanup(request):
+    """Session-scoped fixture to clean up Playwright resources."""
+    def cleanup():
+        print("Performing session-wide Playwright cleanup...")
+        cleanup_web_driver_session()
+    request.addfinalizer(cleanup)
+
+# def pytest_cmdline_main(config):
+#     """
+#     This hook is called *instead* of pytest's normal main entry
+#     if it returns a non-None integer. We use it to redirect
+#     -m smokey invocations into our runner.
+#     """
     
-    if os.environ.get("PYTEST_RUNNER_ACTIVE") == "1":
-        return None
-    # 1) Only intercept when the marker expression includes "smokey"
-    markexpr = getattr(config.option, "markexpr", "None")
-    if not markexpr or "smokey" not in markexpr:
-        return None   # let pytest do its normal thing
+#     if os.environ.get("PYTEST_RUNNER_ACTIVE") == "1":
+#         return None
+#     # 1) Only intercept when the marker expression includes "smokey"
+#     markexpr = getattr(config.option, "markexpr", "None")
+#     if not markexpr or "smokey" not in markexpr:
+#         return None   # let pytest do its normal thing
 
-    # 2) Find the first .py file in config.args
-    test_files = [arg for arg in config.args if Path(arg).suffix == ".py"]
-    if not test_files:
-        pytest.exit("❌ smokey mode requires you to pass at least one .py test file", 1)
-    test_file = test_files[0]
+#     # 2) Find the first .py file in config.args
+#     test_files = [arg for arg in config.args if Path(arg).suffix == ".py"]
+#     if not test_files:
+#         pytest.exit("❌ smokey mode requires you to pass at least one .py test file", 1)
+#     test_file = test_files[0]
 
-    # 3) Build and call your runner script
-    cmd = [
-        sys.executable,
-        str(Path(__file__).parent / "run_tests.py"),
-        "--test-file", test_file,
-        # "-m", markexpr
-    ]
-    print(f"🔄 Detected smokey run; delegating to: {' '.join(cmd)}")
+#     # 3) Build and call your runner script
+#     cmd = [
+#         sys.executable,
+#         str(Path(__file__).parent / "run_tests.py"),
+#         "--test-file", test_file,
+#         # "-m", markexpr
+#     ]
+#     print(f"🔄 Detected smokey run; delegating to: {' '.join(cmd)}")
     
-    # 🧠 Set env var to avoid recursive call
-    env = os.environ.copy()
-    env["PYTEST_RUNNER_ACTIVE"] = "1"
+#     # 🧠 Set env var to avoid recursive call
+#     env = os.environ.copy()
+#     env["PYTEST_RUNNER_ACTIVE"] = "1"
 
-    rc = subprocess.call(cmd)
+#     rc = subprocess.call(cmd)
 
-    # 4) Return its exit code to pytest so pytest will exit with the same status
-    return rc
+#     # 4) Return its exit code to pytest so pytest will exit with the same status
+#     return rc
+

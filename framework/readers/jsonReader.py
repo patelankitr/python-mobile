@@ -35,6 +35,8 @@ class ConfigReader:
                 platform = "iOS"
 
             platform_config = self.config.get("config", {}).get(platform)
+            # print(f"[DEBUG] Platform config being accessed for reading: {platform_config}")
+            # exit()
             if not platform_config:
                 raise ValueError(f"Configuration for platform '{platform}' not found")
 

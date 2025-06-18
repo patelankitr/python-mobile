@@ -13,6 +13,7 @@ from selenium.common.exceptions import TimeoutException
 from framework.mobile.prints import text_print
 from framework.init.base import locator_map
 from framework.readers.fileReader import FileReader
+import inspect
 
 CONFIG_PATH = "config/TestConfig.json"
 
@@ -89,172 +90,106 @@ class Element:
             raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
 
     
-    def multi_tap(self, locator_name, tap_count=1, timeout=10):
+    def multi_tap(self, locator_name, tap_count=1, timeout=10000):
         """
-        Clicks on an element multiple times.
+        Clicks on an element multiple times using Playwright.
 
         Args:
             locator_name (str): Name of the locator in the JSON file
             tap_count (int): Number of times to click the element (default 1)
-            timeout (int): Maximum time to wait for element presence (default 10 seconds)
+            timeout (int): Maximum time to wait for element presence (default 10000 milliseconds)
         """
         try:
-            locator = self.get_locator(locator_name)
-            locator_type = locator.get("locator_type").lower()
-            locator_value = locator.get("locator")
-            
-            by_type = locator_map.get(locator_type)
-            if not by_type:
-                raise ValueError(f"Unsupported locator type: {locator_type}")
-            
-            # Wait for element to be clickable
-            element = WebDriverWait(self.driver, timeout).until(
-                EC.element_to_be_clickable((by_type, locator_value))
-            )
-            
-            # Perform multiple clicks
+            locator_details = self.get_locator(locator_name)
+            locator_value = locator_details.get("locator")
+            element = self.page.locator(locator_value)
+            element.wait_for(state='visible', timeout=timeout)
             for _ in range(tap_count):
-                element.click()
-            
+                element.click(timeout=timeout)
             text_print(f"Clicked {tap_count} times on {locator_name}", 'green')
-        except TimeoutException:
-            raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
         except Exception as e:
             raise Exception(f"Error performing multiple clicks on '{locator_name}': {str(e)}")
 
-    def long_press_element(self, locator_name, duration=1000, timeout=10):
+    def long_press_element(self, locator_name, duration=1000, timeout=10000):
         """
-        Performs a long press on the specified element.
+        Performs a long press on the specified element using Playwright.
 
         Args:
             locator_name (str): Name of the locator in the JSON file
             duration (int): Duration to hold the press in milliseconds (default 1000ms)
-            timeout (int): Maximum time to wait for element presence (default 10 seconds)
+            timeout (int): Maximum time to wait for element presence (default 10000 milliseconds)
         """
         try:
-            locator = self.get_locator(locator_name)
-            locator_type = locator.get("locator_type").lower()
-            locator_value = locator.get("locator")
-            
-            by_type = locator_map.get(locator_type)
-            if not by_type:
-                raise ValueError(f"Unsupported locator type: {locator_type}")
-            
-            # Wait for element to be clickable
-            element = WebDriverWait(self.driver, timeout).until(
-                EC.element_to_be_clickable((by_type, locator_value))
-            )
-            
-            # Create touch action chain
-            actions = ActionChains(self.driver)
-            touch_input = PointerInput(interaction.POINTER_TOUCH, "touch")
-            actions.w3c_actions = ActionBuilder(self.driver, mouse=touch_input)
-            
-            # Perform long press
-            actions.w3c_actions.pointer_action.move_to(element)
-            actions.w3c_actions.pointer_action.click_and_hold()
-            actions.pause(duration / 1000)  # Convert milliseconds to seconds
-            actions.release()
-            actions.perform()
-            
+            locator_details = self.get_locator(locator_name)
+            locator_value = locator_details.get("locator")
+            element = self.page.locator(locator_value)
+            element.wait_for(state='visible', timeout=timeout)
+            self.page.mouse.down()
+            self.page.wait_for_timeout(duration)
+            self.page.mouse.up()
             text_print(f"Long pressed on {locator_name} for {duration}ms", 'green')
-        except TimeoutException:
-            raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
         except Exception as e:
             raise Exception(f"Error performing long press on '{locator_name}': {str(e)}")
 
-    def enter_text(self, locator_name, text_to_enter, timeout=10):
-        try:
-            locator = self.get_locator(locator_name)
-            locator_type = locator.get("locator_type").lower()
-            locator_value = locator.get("locator")
-            
-            by_type = locator_map.get(locator_type)
-            if not by_type:
-                raise ValueError(f"Unsupported locator type: {locator_type}")
-            
-            # Wait for element to be present and interactable
-            element = WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_element_located((by_type, locator_value))
-            )
-            element.clear()
-            element.send_keys(text_to_enter)
-            config = self.load_config()
-            use_highlight_element = config["config"].get("hightlight_element", False)
-            if use_highlight_element:
-                # 🔴 Capture screenshot with red box before click
-                highlight_element(self.driver, element, label=locator_name)
-            text_print(f"Entered text in {locator_name}: {text_to_enter}", 'green')
-        except TimeoutException:
-            raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
-        except Exception as e:
-            raise Exception(f"Error entering text in '{locator_name}': {str(e)}")
-    def clear_and_enter_text(self, locator_name, text_to_enter, timeout=10):
-            """
-            Clears existing text and enters new text into the specified element.
-
-            Args:
-                locator_name (str): Name of the locator in the JSON file
-                text_to_enter (str): Text to enter into the element
-                timeout (int): Maximum time to wait for element presence (default 10 seconds)
-            """
-            try:
-                locator = self.get_locator(locator_name)
-                locator_type = locator.get("locator_type").lower()
-                locator_value = locator.get("locator")
-                
-                by_type = locator_map.get(locator_type)
-                if not by_type:
-                    raise ValueError(f"Unsupported locator type: {locator_type}")
-                
-                # Wait for element to be present and interactable
-                element = WebDriverWait(self.driver, timeout).until(
-                    EC.presence_of_element_located((by_type, locator_value))
-                )
-                
-                # Clear existing text
-                element.clear()
-                text_print(f"Cleared text from {locator_name}", 'green')
-                
-                # Enter new text
-                element.send_keys(text_to_enter)
-                text_print(f"Entered new text in {locator_name}: {text_to_enter}", 'green')
-                
-            except TimeoutException:
-                raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
-            except Exception as e:
-                raise Exception(f"Error in clear and enter text operation for '{locator_name}': {str(e)}")    
-            
-    def clear_text(self, locator_name, timeout=10):
+    def enter_text(self, locator_name, text_to_enter, timeout=10000):
         """
-        Clears existing text and enters new text into the specified element.
+        Enters text into the specified element using Playwright.
 
         Args:
             locator_name (str): Name of the locator in the JSON file
-            timeout (int): Maximum time to wait for element presence (default 10 seconds)
+            text_to_enter (str): Text to enter into the element
+            timeout (int): Maximum time to wait for element presence (default 10000 milliseconds)
         """
         try:
-            locator = self.get_locator(locator_name)
-            locator_type = locator.get("locator_type").lower()
-            locator_value = locator.get("locator")
-            by_type = locator_map.get(locator_type)
-            if not by_type:
-                raise ValueError(f"Unsupported locator type: {locator_type}")
-            # Wait for element to be present and interactable
-            element = WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_element_located((by_type, locator_value))
-            )
-            # Clear existing text
-            element.clear()
-            text_print(f"Cleared text from {locator_name}", 'green')
-
-        except TimeoutException:
-            raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
+            locator_details = self.get_locator(locator_name)
+            locator_value = locator_details.get("locator")
+            element = self.page.locator(locator_value)
+            element.wait_for(state='visible', timeout=timeout)
+            element.fill(text_to_enter)
+            text_print(f"Entered text in {locator_name}: {text_to_enter}", 'green')
         except Exception as e:
-            raise Exception(f"Error in clear text operation for '{locator_name}': {str(e)}")        
+            raise Exception(f"Error entering text in '{locator_name}': {str(e)}")
+
+    def clear_and_enter_text(self, locator_name, text_to_enter, timeout=10000):
+        """
+        Clears existing text and enters new text into the specified element using Playwright.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            text_to_enter (str): Text to enter into the element
+            timeout (int): Maximum time to wait for element presence (default 10000 milliseconds)
+        """
+        try:
+            locator_details = self.get_locator(locator_name)
+            locator_value = locator_details.get("locator")
+            element = self.page.locator(locator_value)
+            element.wait_for(state='visible', timeout=timeout)
+            element.fill(text_to_enter)
+            text_print(f"Cleared and entered new text in {locator_name}: {text_to_enter}", 'green')
+        except Exception as e:
+            raise Exception(f"Error in clear and enter text operation for '{locator_name}': {str(e)}")
+
+    def clear_text(self, locator_name, timeout=10000):
+        """
+        Clears existing text from the specified element using Playwright.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            timeout (int): Maximum time to wait for element presence (default 10000 milliseconds)
+        """
+        try:
+            locator_details = self.get_locator(locator_name)
+            locator_value = locator_details.get("locator")
+            element = self.page.locator(locator_value)
+            element.wait_for(state='visible', timeout=timeout)
+            element.fill("")
+            text_print(f"Cleared text from {locator_name}", 'green')
+        except Exception as e:
+            raise Exception(f"Error in clear text operation for '{locator_name}': {str(e)}")
+
     def enter_text_from_file(self, locator_name, file_name, cell_reference, sheet_name=None):
         """
-        Reads a value from a file (CSV or Excel) and enters it into the specified element.
+        Reads a value from a file (CSV or Excel) and enters it into the specified element using Playwright.
 
         Args:
             locator_name (str): Name of the locator in the JSON file.
@@ -555,6 +490,23 @@ class Element:
         except Exception as e:
             raise Exception(f"Error getting attribute '{attribute_name}' from '{locator_name}': {str(e)}")
 
+    @staticmethod
+    def get_originating_test_path():
+        """
+        Walk the call stack to find the test_*.py file that triggered this flow.
+        """
+        stack = inspect.stack()
+        print('stack')
+        print(stack)
+        print('stack')
+        
+
+        for frame in stack:
+            filename = frame.filename
+            if "test_" in Path(filename).name:
+                return Path(filename).resolve().parent
+        return Path.cwd()
+
     def take_element_screenshot(self, locator_name, filename=None, timeout=10):
         """
         Takes a screenshot of the specified element.
@@ -571,8 +523,14 @@ class Element:
             from pathlib import Path
             
             # Create baseline_img directory if it doesn't exist
-            baseline_dir = Path("baseline_img")
-            baseline_dir.mkdir(exist_ok=True)
+            # baseline_dir = Path("baseline_img")
+            # baseline_dir.mkdir(exist_ok=True)
+
+            test_folder = self.get_originating_test_path()
+            baseline_dir = Path(test_folder) / "baseline_img"
+            baseline_dir.mkdir(parents=True, exist_ok=True)
+            # baseline_dir = os.path.join(test_folder, "baseline_img")
+            # os.makedirs(baseline_dir, exist_ok=True)
             
             locator = self.get_locator(locator_name)
             locator_type = locator.get("locator_type").lower()
@@ -629,8 +587,11 @@ class Element:
             from pathlib import Path
 
             # Create and get baseline directory path
-            baseline_dir = Path("baseline_img")
-            baseline_dir.mkdir(exist_ok=True)
+            # baseline_dir = Path("baseline_img")
+            # baseline_dir.mkdir(exist_ok=True)
+            test_folder = self.get_originating_test_path()
+            baseline_dir = Path(test_folder) / "baseline_img"
+            baseline_dir.mkdir(parents=True, exist_ok=True)
             
             # Construct full path for baseline image
             if not baseline_image.endswith('.png'):
@@ -683,9 +644,12 @@ class Element:
         try:
             from pathlib import Path
             
-            # Create baseline_img directory if it doesn't exist
-            baseline_dir = Path("baseline_img")
-            baseline_dir.mkdir(exist_ok=True)
+            test_folder = self.get_originating_test_path()
+            baseline_dir = Path(test_folder) / "baseline_img"
+            baseline_dir.mkdir(parents=True, exist_ok=True)
+            # # Create baseline_img directory if it doesn't exist
+            # baseline_dir = Path("baseline_img")
+            # baseline_dir.mkdir(exist_ok=True)
             
             # Generate filename if not provided
             if not filename:
@@ -725,8 +689,11 @@ class Element:
             from pathlib import Path
 
             # Create and get baseline directory path
-            baseline_dir = Path("baseline_img")
-            baseline_dir.mkdir(exist_ok=True)
+            test_folder = self.get_originating_test_path()
+            baseline_dir = Path(test_folder) / "baseline_img"
+            baseline_dir.mkdir(parents=True, exist_ok=True)
+            # baseline_dir = Path("baseline_img")
+            # baseline_dir.mkdir(exist_ok=True)
             
             # Construct full path for baseline image
             if not baseline_image.endswith('.png'):
@@ -776,8 +743,11 @@ class Element:
             from pathlib import Path
             
             # Create recordings directory if it doesn't exist
-            recordings_dir = Path("recordings")
-            recordings_dir.mkdir(exist_ok=True)
+            # recordings_dir = Path("recordings")
+            # recordings_dir.mkdir(exist_ok=True)
+            test_folder = self.get_originating_test_path()
+            recordings_dir = Path(test_folder) / "recordings"
+            recordings_dir.mkdir(parents=True, exist_ok=True)
             
             # Quality settings mapping
             quality_settings = {
@@ -829,8 +799,11 @@ class Element:
             from pathlib import Path
             
             # Create recordings directory if it doesn't exist
-            recordings_dir = Path("recordings")
-            recordings_dir.mkdir(exist_ok=True)
+            # recordings_dir = Path("recordings")
+            # recordings_dir.mkdir(exist_ok=True)
+            test_folder = self.get_originating_test_path()
+            recordings_dir = Path(test_folder) / "recordings"
+            recordings_dir.mkdir(parents=True, exist_ok=True)
             
             # Generate filename if not provided
             if not filename:
@@ -871,8 +844,10 @@ class Element:
             from pathlib import Path
             
             # Create logs directory if it doesn't exist
-            logs_dir = Path("device_logs")
-            logs_dir.mkdir(exist_ok=True)
+            logs_dir = Path("utils/device_logs")
+            logs_dir.mkdir(parents=True, exist_ok=True)
+            # logs_dir = Path("device_logs")
+            # logs_dir.mkdir(exist_ok=True)
             
             # Generate filename if not provided
             if not filename:

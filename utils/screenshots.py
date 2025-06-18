@@ -16,8 +16,13 @@ def highlight_element(driver, element, label="tap"):
         outline="red", width=5
     )
 
+    # Updated path for screenshots
+    screenshot_dir = os.path.join("utils", "highlight_element")
+    os.makedirs(screenshot_dir, exist_ok=True)
+
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = f"screenshots/{label}_{timestamp}.png"
-    os.makedirs("screenshots", exist_ok=True)
+    # filename = f"screenshots/{label}_{timestamp}.png"
+    # os.makedirs("screenshots", exist_ok=True)
+    filename = os.path.join(screenshot_dir, f"{label}_{timestamp}.png")
     image.save(filename)
     print(f"📸 Highlighted screenshot saved to {filename}")

@@ -1,0 +1,6 @@
+{
+    "store_link": {
+      "locator_type": "xpath",
+      "locator": "//a"
+    }
+}

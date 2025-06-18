@@ -1,10 +1,13 @@
 {
-  "run": "android",
+  "run": "web",
   "config": {
     "web": {
       "platform": "web",
-      "browser": "chrome"
-      },
+      "browser": "chromium",
+      "base_url": "https://example.com",
+      "headless": false
+
+    },
     "android": {
       "platform": "android",
       "appPath/appPackage": "org-simple-clinic.apk",
@@ -51,7 +54,7 @@
       "browser": "chrome",
       "browserVersion": "latest"
     },
-    "report": false,
+    "report": true,
     "hightlight_element": true
   }
 }
