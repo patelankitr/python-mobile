@@ -1,6 +1,12 @@
 {
-  "run": "android",
+  "run": "web",
   "config": {
+    "web": {
+      "platform": "web",
+      "browser": "FIREFOX",
+      "base_url": "https://google.com",
+      "headless": true
+    },
     "android": {
       "platform": "android",
       "appPath/appPackage": "org-simple-clinic.apk",

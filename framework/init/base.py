@@ -43,6 +43,9 @@ class DriverFactory:
         self.device_name = self.platform_config.get("deviceName")
         self.automation_name = self.platform_config.get("automationName")
         self.activity = self.platform_config.get("appActivity")
+        self.base_url = self.platform_config.get("base_url")
+        self.browser = self.platform_config.get("browser")
+        self.headless = self.platform_config.get("headless")
         self.capabilities = self.platform_config.get("capabilities", {})
 
         text_print("\n📱 Device Info","green")
@@ -241,6 +244,41 @@ class DriverFactory:
     def init_alt_tester_driver(self, host="127.0.0.1", port=13000, app_name="__default__"):
         """Initialize AltTester driver"""
         return AltDriver(host=host, port=port, app_name=app_name)
+
+    async def init_playwright_browser(self, browser_type="chrome", headless=False, url=None):
+        """Initialize Playwright browser and navigate to URL if provided
+        Args:
+            browser_type (str): Type of browser to launch ('chrome', 'firefox', 'webkit')
+            headless (bool): Whether to run browser in headless mode
+            url (str): Optional URL to navigate to after browser launch
+        Returns:
+            tuple: (Browser, Context, Page) instances
+        """
+        if url is None:
+            url = self.base_url
+        from playwright.async_api import async_playwright
+        
+        playwright = await async_playwright().start()
+        self.browser = self.platform_config.get("browser")
+        self.headless = self.platform_config.get("headless")
+        if self.browser.lower() == "chrome" or self.browser.lower() == "chromium":
+            browser = await playwright.chromium.launch(headless=self.headless)
+        elif self.browser.lower() == "firefox":
+            browser = await playwright.firefox.launch(headless=self.headless)
+        elif self.browser.lower() == "webkit":
+            browser = await playwright.webkit.launch(headless=self.headless)
+        else:
+            print(Fore.YELLOW + f"Unsupported browser type: {browser_type}, defaulting to chrome.")
+            browser = await playwright.chromium.launch(headless=headless)
+            
+        context = await browser.new_context()
+        page = await context.new_page()
+        
+        if url:
+            await page.goto(url)
+            print(Fore.GREEN + f"Navigated to: {url}")
+        
+        return browser, context, page
 
 
 # Global instance of DriverFactory
