@@ -245,7 +245,7 @@ class DriverFactory:
         """Initialize AltTester driver"""
         return AltDriver(host=host, port=port, app_name=app_name)
 
-    async def init_playwright_browser(self, browser_type="chrome", headless=False, url=None):
+    async def init_playwright_browser(self):
         """Initialize Playwright browser and navigate to URL if provided
         Args:
             browser_type (str): Type of browser to launch ('chrome', 'firefox', 'webkit')
@@ -254,8 +254,8 @@ class DriverFactory:
         Returns:
             tuple: (Browser, Context, Page) instances
         """
-        if url is None:
-            url = self.base_url
+        
+        url = self.base_url
         from playwright.async_api import async_playwright
         
         playwright = await async_playwright().start()

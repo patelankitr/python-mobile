@@ -4,8 +4,8 @@
     "web": {
       "platform": "web",
       "browser": "FIREFOX",
-      "base_url": "https://google.com",
-      "headless": true
+      "base_url": "https://aks-panel.sadad.qa/",
+      "headless": false
     },
     "android": {
       "platform": "android",

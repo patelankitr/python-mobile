@@ -9,6 +9,19 @@ import os
 import shutil
 import subprocess
 from pathlib import Path
+import pytest_asyncio
+
+# Configure pytest-asyncio
+def pytest_configure(config):
+    config.option.asyncio_mode = "auto"
+
+@pytest_asyncio.fixture(scope="session")
+def event_loop():
+    """Create an instance of the default event loop for each test case."""
+    import asyncio
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
 
 # @pytest_wrapper.hookimpl(hookwrapper=True)
 @pytest.hookimpl(hookwrapper=True)

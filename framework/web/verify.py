@@ -53,3 +53,14 @@ class WebVerify:
             return True
         except TimeoutException:
             raise TimeoutException(f"Title verification failed after {timeout} seconds")
+
+    async def verify_url(self, expected_url: str):
+        """
+        Assert that the current page URL matches the expected URL.
+        Args:
+            expected_url (str): The URL to verify
+        Raises:
+            AssertionError: If the current URL does not match expected_url
+        """
+        actual_url = self.page.url if not callable(self.page.url) else await self.page.url()
+        assert actual_url == expected_url, f"Expected URL '{expected_url}', but got '{actual_url}'"
