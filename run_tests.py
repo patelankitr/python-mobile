@@ -40,7 +40,7 @@ def load_config():
 def run_tests(use_allure: bool):
     print("📦 Running tests...")
     print(f"✅ TEST_FILE: {TEST_FILE}")
-    cmd = ["pytest", TEST_FILE]
+    cmd = ["pytest", "-s", TEST_FILE]
     if MARKER:
         print(f"✅ Using marker: {MARKER}")
         cmd = ["pytest", "-m", MARKER, TEST_FILE]

@@ -1,0 +1,103 @@
+{   
+    "login_mobile_number": {
+        "locator_type": "xpath",
+        "locator": "//input[contains(@placeholder, 'Mobile Number')]"
+    },
+    "login_password": {
+        "locator_type": "xpath",
+        "locator": "//input[contains(@placeholder, 'Password')]"
+    },
+    "submit_button": {
+        "locator_type": "xpath",
+        "locator": "//button"
+    },
+    "fill_otp": {
+        "locator_type": "xpath",
+        "locator": "//input[contains(@name, 'otp1')]"
+    },
+    "pos": {
+        "locator_type": "text",
+        "locator": "POS"
+    },
+    "ng-dropdown": {
+        "locator_type": "xpath",
+        "locator": "//ng-select"
+    },
+    "ng-dropdown_option": {
+        "locator_type": "xpath",
+        "locator": "//div[contains(@class, 'ng-option')]"
+    },
+    "ng-dropdown-online_option": {
+        "locator_type": "xpath",
+        "locator": "//div[contains(@class, 'ng-option')]//span[contains(text(), 'Online Payment')]"
+    },
+    "select_text": {
+        "locator_type": "text",
+        "locator": "Online Payment"
+    },
+    "invoice_link": {
+        "locator_type": "xpath",
+        "locator": "//a[contains(@href, '/merchantpanel/invoice')]"
+    },
+    "create_invoice": {
+        "locator_type": "xpath",
+        "locator": "//button[contains(text(), 'Create Invoice')]"
+    },
+    "form-mobile-number": {
+        "locator_type": "xpath",
+        "locator": "//input[@id='phone']"
+    },
+    "form-client-name": {
+        "locator_type": "xpath",
+        "locator": "//input[@id='clientname'] | //*[@id='clientname'] | /html/body/ngb-modal-window/div/div/app-mymodal/div/div[2]/form/div[1]/div[1]/div[2]/div/div/input"
+    },
+    "form-item-name": {
+        "locator_type": "xpath",
+        "locator": "//input[@id='description']"
+    },
+    "form-qty": {
+        "locator_type": "xpath",
+        "locator": "//input[@id='amount']"
+    },
+    "form-unit-price": {
+        "locator_type": "xpath",
+        "locator": "//input[@id='quantity']"
+    },
+    "form-send-invoice-btn": {
+        "locator_type": "xpath",
+        "locator": "//button[contains(@class,'btn-invoice-yellow')]"
+    },
+    "form-add-product-btn": {
+        "locator_type": "xpath",
+        "locator": "//button[contains(text(),'Add Product')]"
+    },
+    "heading-visible": {
+        "locator_type": "xpath",
+        "locator": "//div//app-mymodal//div//div//h6[contains(text(),  'Create Invoice')]"
+    },
+    "verify-form-details-mobile-number": {
+        "locator_type": "xpath",
+        "locator": "//span[@id='phone']"
+    },
+    "verify-form-invoice-status": {
+        "locator_type": "xpath",
+        "locator": "//table//tbody//tr[1]//td//span[contains(text(), 'UNPAID')]"
+    },
+    "verify-form-customer-name": {
+        "locator_type": "xpath",
+        "locator": "//table//tbody//tr[1]//td[4]"
+    },
+    "verify-form-customer-mobile-number": {
+        "locator_type": "xpath",
+        "locator": "//table//tbody//tr[1]//td[5]"
+    },
+    "verify-form-action": {
+        "locator_type": "xpath",
+        "locator": "//table//tbody//tr[1]//td[9]//a"
+    },
+    "verify-form-dial-code": {
+        "locator_type": "xpath",
+        "locator": "//div[contains(@class,'selected-dial-code')]"
+    }
+    
+}
