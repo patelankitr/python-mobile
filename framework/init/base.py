@@ -238,50 +238,6 @@ class DriverFactory:
                     except Exception as e:
                         print(Fore.RED +f"Error stopping Appium service: {e}")
 
-    def init_alt_tester_driver(self, host="127.0.0.1", port=13000, app_name="__default__"):
-        """Initialize AltTester driver"""
-        return AltDriver(host=host, port=port, app_name=app_name)
-
-<<<<<<< Updated upstream
-=======
-    async def init_playwright_browser(self):
-        """
-        Initialize Playwright browser and navigate to base URL.
-
-        Returns:
-            tuple: (Browser, Context, Page) instances
-        """
-        from playwright.async_api import async_playwright
-        from colorama import Fore
-
-        url = self.base_url
-        browser_type = self.platform_config.get("browser", "chromium").lower()
-        headless = self.platform_config.get("headless", True)
-
-        playwright = await async_playwright().start()
-
-        if browser_type in ["chrome", "chromium"]:
-            browser = await playwright.chromium.launch(headless=headless)
-        elif browser_type == "firefox":
-            browser = await playwright.firefox.launch(headless=headless)
-        elif browser_type == "webkit":
-            browser = await playwright.webkit.launch(headless=headless)
-        else:
-            print(Fore.YELLOW + f"Unsupported browser type: {browser_type}, defaulting to Chromium.")
-            browser = await playwright.chromium.launch(headless=headless)
-
-        # Maximize screen by disabling the fixed viewport
-        context = await browser.new_context(permissions=["clipboard-read", "clipboard-write"], locale='en-US')
-        page = await context.new_page()
-
-        if url:
-            await page.goto(url)
-            print(Fore.GREEN + f"Navigated to: {url}")
-
-        return browser, context, page
-
->>>>>>> Stashed changes
-
 # Global instance of DriverFactory
 _driver_factory = None
 

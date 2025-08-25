@@ -1,6 +1,7 @@
 import base64
 import json
 import os
+import sys
 from pathlib import Path
 import config
 from utils.screenshots import highlight_element
