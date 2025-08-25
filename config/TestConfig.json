@@ -5,12 +5,12 @@
       "platform": "android",
       "appPath/appPackage": "org-simple-clinic.apk",
       "platformVersion": "13",
-      "deviceName": "ZD4HCIWOQCKVQO9P",
+      "deviceName": "0e191f93bb13",
       "automationName": "UiAutomator2",
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,
-        "noReset": false,
+        "noReset": true,
         "autoGrantPermissions": true
       }
     },
@@ -48,6 +48,6 @@
       "browserVersion": "latest"
     },
     "report": false,
-    "hightlight_element": true
+    "hightlight_element": false
   }
 }

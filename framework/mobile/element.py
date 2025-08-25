@@ -2,6 +2,7 @@ import base64
 import json
 import os
 from pathlib import Path
+import config
 from utils.screenshots import highlight_element
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.actions import interaction
@@ -13,6 +14,9 @@ from selenium.common.exceptions import TimeoutException
 from framework.mobile.prints import text_print
 from framework.init.base import locator_map
 from framework.readers.fileReader import FileReader
+from selenium.webdriver.common.actions.action_builder import ActionBuilder
+from selenium.webdriver.common.keys import Keys
+import time
 
 CONFIG_PATH = "config/TestConfig.json"
 
@@ -88,6 +92,23 @@ class Element:
         except TimeoutException:
             raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
 
+    def press_number_keys(self, numbers):
+        key_map = {
+            0: 7, 1: 8, 2: 9, 3: 10, 4: 11,
+            5: 12, 6: 13, 7: 14, 8: 15, 9: 16
+        }
+
+        # Support input as string "123" or list [1, 2, 3]
+        if isinstance(numbers, str):
+            numbers = [int(n) for n in numbers if n.isdigit()]
+
+        for number in numbers:
+            keycode = key_map.get(number)
+            if keycode is not None:
+                self.driver.press_keycode(keycode)
+                text_print(f"Pressed key {number}", 'green')
+            else:
+                raise ValueError(f"Invalid number: {number}")
     
     def multi_tap(self, locator_name, tap_count=1, timeout=10):
         """
@@ -293,69 +314,35 @@ class Element:
             raise Exception(f"Error in enter_text_from_file: {str(e)}")
 
 
+        # swipe from one element to another
+    
     # swipe from one element to another
-    def swipe_element_to_element(self, start_locator_name, end_locator_name, duration=None, timeout=10):
+    def swipe_element_to_element(self, start_locator_name, end_locator_name, duration=500, timeout=10):
         """
-        Swipes from one element to another element.
-        
+        Swipes from one element to another using Appium W3C Actions.
+
         Args:
-            start_locator_name (str): Name of the starting element locator
-            end_locator_name (str): Name of the ending element locator
-            duration (int, optional): Time in milliseconds for the swipe action
-            timeout (int): Maximum time to wait for elements to be present (default 10 seconds)
-            :param timeout:
-            :param duration:
-            :param end_locator_name:
-            :param start_locator_name:
-            :param self:
+            start_locator_name (str): Locator name for start element
+            end_locator_name (str): Locator name for end element
+            duration (int): Duration in milliseconds
+            timeout (int): Wait timeout for elements
         """
         try:
-            # Get start element locator and wait for presence
             start_locator = self.get_locator(start_locator_name)
-            start_element = WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_element_located((
-                    locator_map[start_locator.get("locator_type").lower()],
-                    start_locator.get("locator")
-                ))
-            )
-            
-            # Get end element locator and wait for presence
             end_locator = self.get_locator(end_locator_name)
-            end_element = WebDriverWait(self.driver, timeout).until(
-                EC.presence_of_element_located((
-                    locator_map[end_locator.get("locator_type").lower()],
-                    end_locator.get("locator")
-                ))
+            start_element = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located(
+                    (locator_map[start_locator.get("locator_type").lower()], start_locator.get("locator")))
             )
-            
-            # Get element coordinates
-            start_location = start_element.location
-            end_location = end_element.location
-            
-            # Perform swipe
-            action = self.driver.action()
-            if duration:
-                action.press(x=start_location['x'], y=start_location['y']) \
-                    .wait(duration) \
-                    .move_to(x=end_location['x'], y=end_location['y']) \
-                    .release() \
-                    .perform()
-            else:
-                action.press(x=start_location['x'], y=start_location['y']) \
-                    .move_to(x=end_location['x'], y=end_location['y']) \
-                    .release() \
-                    .perform()
-                
-            text_print(f"Swiped from {start_locator_name} to {end_locator_name}", 'green')
-            
-        except TimeoutException:
-            raise TimeoutException(f"Elements not found after {timeout} seconds")
+            end_element = WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located(
+                    (locator_map[end_locator.get("locator_type").lower()], end_locator.get("locator")))
+            )
+            start_x, start_y = start_element.location['x'], start_element.location['y']
+            end_x, end_y = end_element.location['x'], end_element.location['y']
+            self.swipe_by_coordinates(start_x, start_y, end_x, end_y, duration)
         except Exception as e:
-            raise Exception(f"Error performing element to element swipe: {str(e)}")
-
-        # 1. Swipe from one element to another
-        # element.swipe_element_to_element('start_button', 'end_button')
-        # element.swipe_element_to_element('start_button', 'end_button', duration=500)  # with duration
+            raise Exception(f"Error performing element-to-element swipe: {str(e)}")
 
     #swipe by direction
     def swipe_by_direction(self, direction, duration=None, percentage=0.75):
@@ -431,56 +418,33 @@ class Element:
         # element.swipe_by_direction('up', percentage=0.5)  # swipe 50% of screen
         # element.swipe_by_direction('down', duration=500, percentage=0.8)
 
-    def swipe_by_coordinates(self, start_x, start_y, end_x, end_y, duration=None):
+    def swipe_by_coordinates(self, start_x, start_y, end_x, end_y, duration=500):
         """
-        Swipes from one coordinate to another.
-        
+        Swipes from one coordinate to another using Appium W3C Actions.
+
         Args:
             start_x (int): Starting x coordinate
             start_y (int): Starting y coordinate
             end_x (int): Ending x coordinate
             end_y (int): Ending y coordinate
-            duration (int, optional): Time in milliseconds for the swipe action
+            duration (int): Duration in milliseconds for the swipe (default: 500ms)
         """
         try:
-            # Validate coordinates
-            window_size = self.driver.get_window_size()
-            max_x, max_y = window_size['width'], window_size['height']
-            
-            for coord, value, max_val, name in [
-                ('start_x', start_x, max_x, 'width'),
-                ('end_x', end_x, max_x, 'width'),
-                ('start_y', start_y, max_y, 'height'),
-                ('end_y', end_y, max_y, 'height')
-            ]:
-                if not 0 <= value <= max_val:
-                    raise ValueError(
-                        f"Invalid {coord}: {value}. Must be between 0 and {name} ({max_val})"
-                    )
-            
-            # Perform swipe
-            action = self.driver.action()
-            if duration:
-                action.press(x=start_x, y=start_y) \
-                    .wait(duration) \
-                    .move_to(x=end_x, y=end_y) \
-                    .release() \
-                    .perform()
-            else:
-                action.press(x=start_x, y=start_y) \
-                    .move_to(x=end_x, y=end_y) \
-                    .release() \
-                    .perform()
-                
+            # Create a touch pointer input
+            actions = ActionChains(self.driver)
+            touch_input = PointerInput(interaction.POINTER_TOUCH, "touch")
+            actions.w3c_actions = ActionBuilder(self.driver, mouse=touch_input)
+
+            # Move to start, press, move to end, release
+            actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+            actions.w3c_actions.pointer_action.pointer_down()
+            actions.w3c_actions.pointer_action.pause(duration / 1000)  # Convert ms to seconds
+            actions.w3c_actions.pointer_action.move_to_location(end_x, end_y)
+            actions.w3c_actions.pointer_action.pointer_up()
+            actions.perform()
             text_print(f"Swiped from ({start_x}, {start_y}) to ({end_x}, {end_y})", 'green')
-            
         except Exception as e:
-            raise Exception(f"Error performing coordinate swipe: {str(e)}")
-        
-        # Swipe by coordinates
-        # element.swipe_by_coordinates(500, 1000, 100, 1000)  # horizontal swipe
-        # element.swipe_by_coordinates(250, 800, 250, 200)    # vertical swipe
-        # element.swipe_by_coordinates(100, 100, 300, 500, duration=400)  # diagonal swipe
+            raise Exception(f"Error performing swipe: {str(e)}")
 
     def get_text(self, locator_name, timeout=10):
         """
@@ -984,6 +948,263 @@ class Element:
         # element.pinch_to_zoom('image_element')  # Default zoom in (scale_factor=2.0)
         # element.pinch_to_zoom('image_element', scale_factor=0.5)  # Zoom out
         # element.pinch_to_zoom('image_element', scale_factor=3.0, duration=1000)  # Slow zoom in
+
+    def scroll_page(self, direction="down", amount=300):
+        """
+        Scrolls the page in the given direction by the given amount.
+
+        Args:
+            direction (str): 'up' or 'down' (default: 'down')
+            amount (int): Amount to scroll (default: 300 pixels)
+        """
+        try:
+            from selenium.webdriver.common.action_chains import ActionChains
+            from selenium.webdriver.common.keys import Keys
+            
+            # Determine scroll direction
+            if direction == "down":
+                scroll_direction = Keys.PAGE_DOWN
+            elif direction == "up":
+                scroll_direction = Keys.PAGE_UP
+            else:
+                raise ValueError("Direction must be 'up' or 'down'")
+            
+            # Perform scroll action
+            ActionChains(self.driver).send_keys(scroll_direction).perform()
+            text_print(f"Scrolled {direction} by {amount} pixels", 'green')
+            
+        except Exception as e:
+            raise Exception(f"Error scrolling page: {str(e)}")
+
+    def scroll_until_visible(self, locator_name, direction="down", max_attempts=20, timeout=5):
+        """
+        Scrolls the page in the given direction until the element is visible, then stops.
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            direction (str): 'down', 'up', 'left', or 'right' (default: 'down')
+            max_attempts (int): Maximum number of scroll attempts (default: 20)
+            timeout (int): Time to wait for element presence after each scroll (default: 5 seconds)
+        Raises:
+            TimeoutException: If the element is not found after max_attempts
+        """
+        default_amount = 300
+        for attempt in range(max_attempts):
+            try:
+                locator = self.get_locator(locator_name)
+                locator_type = locator.get("locator_type").lower()
+                locator_value = locator.get("locator")
+                by_type = locator_map.get(locator_type)
+                if not by_type:
+                    raise ValueError(f"Unsupported locator type: {locator_type}")
+                element = WebDriverWait(self.driver, timeout).until(
+                    EC.presence_of_element_located((by_type, locator_value))
+                )
+                if element.is_displayed():
+                    text_print(f"Element '{locator_name}' is visible after {attempt+1} scroll(s)", 'green')
+                    return element
+            except Exception:
+                self.scroll_page(direction=direction, amount=default_amount)
+        raise TimeoutException(f"Element '{locator_name}' not visible after {max_attempts} scroll attempts")
+    
+    def hide_keyboard(self):
+        """
+        Hides the on-screen keyboard if it is open (Appium).
+        """
+        try:
+            self.driver.hide_keyboard()
+            text_print("Keyboard hidden successfully", 'green')
+        except Exception as e:
+            text_print(f"Could not hide keyboard: {e}", 'red')
+
+    def show_keyboard(self):
+        """
+        Attempts to show the on-screen keyboard (Appium, Android only).
+        """
+        try:
+            # For Android, you can use driver.press_keycode with KEYCODE_SEARCH or KEYCODE_A to show keyboard
+            # This is a workaround, as Appium does not have a direct show_keyboard method
+            self.driver.press_keycode(84)  # KEYCODE_SEARCH
+            text_print("Keyboard show command sent (Android)", 'green')
+        except Exception as e:
+            text_print(f"Could not show keyboard: {e}", 'red')
+    
+    def open_url_in_chrome(self, url, wait_time=10):
+        """
+        Launches Chrome on Android and navigates to the specified URL using Appium.
+        Args:
+            url (str): The URL to open.
+            wait_time (int): Seconds to wait for Chrome address bar (default: 10)
+        """
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.common.keys import Keys
+        import time
+        try:
+            # Start Chrome if not already started
+            self.driver.start_activity("com.android.chrome", "com.google.android.apps.chrome.Main")
+            time.sleep(2)  # Wait for Chrome to launch
+
+            # Handle Chrome's first run popups if present
+            try:
+                accept_btn = self.driver.find_elements(By.ID, "com.android.chrome:id/terms_accept")
+                if accept_btn:
+                    accept_btn[0].click()
+                    time.sleep(1)
+                next_btn = self.driver.find_elements(By.ID, "com.android.chrome:id/next_button")
+                if next_btn:
+                    next_btn[0].click()
+                    time.sleep(1)
+                no_thanks_btn = self.driver.find_elements(By.ID, "com.android.chrome:id/negative_button")
+                if no_thanks_btn:
+                    no_thanks_btn[0].click()
+                    time.sleep(1)
+            except Exception:
+                pass  # Ignore if not present
+
+            # Wait for the address bar to be present
+            from selenium.webdriver.support.ui import WebDriverWait
+            from selenium.webdriver.support import expected_conditions as EC
+            address_bar = WebDriverWait(self.driver, wait_time).until(
+                lambda d: d.find_element(By.ID, "com.android.chrome:id/url_bar")
+            )
+            address_bar.click()
+            address_bar.clear()
+            address_bar.send_keys(url)
+            address_bar.send_keys(Keys.ENTER)
+            text_print(f"Opened URL in Chrome: {url}", 'green')
+        except Exception as e:
+            raise Exception(f"Error opening URL in Chrome: {str(e)}")
+
+    def switch_to_chrome_and_pay(self, url, wait_time=10):
+        """
+        Switches from the current app to Chrome, automates payment, then returns to the app.
+        Args:
+            url (str): The payment URL to open in Chrome.
+            wait_time (int): Seconds to wait for Chrome address bar (default: 10)
+        """
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+
+        config = self.load_config()
+
+        # Save your app's package/activity for later
+        app_activity = config["config"]["android"]["capabilities"]["appActivity"]
+        app_package = config["config"]["android"]["appPath/appPackage"]
+
+        # 1. Launch Chrome and open the payment URL
+        self.driver.start_activity("com.android.chrome", "com.google.android.apps.chrome.Main")
+        time.sleep(2)
+        try:
+            # Handle Chrome's first run popups if present
+            for btn_id in [
+                "com.android.chrome:id/terms_accept",
+                "com.android.chrome:id/next_button",
+                "com.android.chrome:id/negative_button"
+            ]:
+                btns = self.driver.find_elements(By.ID, btn_id)
+                if btns:
+                    btns[0].click()
+                    time.sleep(1)
+        except Exception:
+            pass
+
+        # Open the payment URL
+        address_bar = WebDriverWait(self.driver, wait_time).until(
+            lambda d: d.find_element(By.ID, "com.android.chrome:id/url_bar")
+        )
+        address_bar.click()
+        address_bar.clear()
+        address_bar.send_keys(url)
+        address_bar.send_keys(Keys.ENTER)
+        time.sleep(3)  # Wait for page to load
+
+        # 2. Automate payment steps in Chrome here
+        # Example: find and interact with payment elements using self.driver.find_element...
+
+        # 3. After payment, switch back to your app
+        self.driver.start_activity(app_package, app_activity)
+        time.sleep(2)
+        # Now you are back in your app and can continue automation
+
+        # Optionally, verify you are back in your app
+        # assert self.driver.current_package == app_package
+
+    def scroll_by_coordinates(self, start_x, start_y, end_x, end_y, duration=500):
+        """
+        Scrolls the screen from one coordinate to another using Appium W3C Actions.
+
+        Args:
+            start_x (int): Starting x coordinate
+            start_y (int): Starting y coordinate
+            end_x (int): Ending x coordinate
+            end_y (int): Ending y coordinate
+            duration (int): Duration in milliseconds for the scroll (default: 500ms)
+        """
+        try:
+            actions = ActionChains(self.driver)
+            touch_input = PointerInput(interaction.POINTER_TOUCH, "touch")
+            actions.w3c_actions = ActionBuilder(self.driver, mouse=touch_input)
+
+            actions.w3c_actions.pointer_action.move_to_location(start_x, start_y)
+            actions.w3c_actions.pointer_action.pointer_down()
+            actions.w3c_actions.pointer_action.pause(duration / 1000)
+            actions.w3c_actions.pointer_action.move_to_location(end_x, end_y)
+            actions.w3c_actions.pointer_action.pointer_up()
+            actions.perform()
+            text_print(f"Scrolled from ({start_x}, {start_y}) to ({end_x}, {end_y})", 'green')
+        except Exception as e:
+            raise Exception(f"Error performing scroll: {str(e)}")
+
+    def tap_and_get_clipboard_text(self, locator_name, timeout=10, pause_after_click=1):
+
+        try:
+
+            locator = self.get_locator(locator_name)
+
+            locator_type = locator.get("locator_type").lower()
+
+            locator_value = locator.get("locator")
+
+            by_type = locator_map.get(locator_type)
+
+            if not by_type:
+                raise ValueError(f"Unsupported locator type: {locator_type}")
+
+            # Wait for element to be clickable
+
+            element = WebDriverWait(self.driver, timeout).until(
+
+                EC.element_to_be_clickable((by_type, locator_value))
+
+            )
+
+            config = self.load_config()
+
+            use_highlight_element = config["config"].get("hightlight_element", False)
+
+            if use_highlight_element:
+                highlight_element(self.driver, element, label=locator_name)
+
+            # 📌 Tap on element
+
+            element.click()
+
+            text_print(f"Clicked on {locator_name}", 'green')
+
+            # ⏳ Wait a moment to allow clipboard to update
+
+            time.sleep(pause_after_click)
+
+            # 📋 Get clipboard content
+
+            clipboard_text = self.driver.get_clipboard_text()
+
+            text_print(f"📋 Clipboard text retrieved: {clipboard_text}", 'blue')
+
+            return clipboard_text
+
+        except TimeoutException:
+
+            raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
 
 
 
