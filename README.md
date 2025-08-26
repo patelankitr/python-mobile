@@ -1,70 +1,119 @@
 
 # HexEngine - Mobile Automation Solution
 
+A comprehensive mobile automation framework built with Python, supporting cross-platform testing for Android and iOS applications. This framework provides a robust foundation for mobile test automation with support for local devices, cloud testing platforms, and comprehensive reporting.
+
+## Features
+
+- **Cross-Platform Support**: Test Android and iOS applications
+- **Multiple Testing Environments**: Local devices, LambdaTest, BrowserStack
+- **Comprehensive Element Interactions**: Tap, swipe, text input, and verification
+- **Advanced Waiting Mechanisms**: Smart waits for element visibility and presence
+- **Detailed Reporting**: Allure reports with screenshots and logs
+- **Flexible Configuration**: JSON-based configuration for different environments
+- **AI Integration**: OCR and smart element detection capabilities
+
 ## Tech Stack
 
-This document provides an overview of the technologies used in the automation framework.
+### Core Technologies
 
-## Python
-Used for scripting and writing automation logic.
+- **Python**: Primary scripting language for automation logic and test implementation
+- **Appium**: Mobile automation framework enabling cross-platform app testing
+- **pytest**: Advanced testing framework with powerful fixtures and reporting capabilities
 
-## Appium
-A tool for mobile automation, enabling interaction with mobile applications across different platforms.
+### Reporting & Analysis
 
-## pytest
-A framework for test execution and reporting, offering powerful features for writing scalable tests.
+- **Allure Report**: Comprehensive test reporting with detailed execution insights
+- **Logging**: Structured logging for execution tracking and debugging
+- **Screenshots**: Automatic capture on failures and key test steps
 
-## Selenium/WebDriver
-Used for testing web views inside mobile apps, ensuring proper functionality and compatibility.
+### DevOps Integration
 
-## Allure Report
-A test reporting tool that provides detailed insights into test execution results.
+- **CI/CD**: Jenkins and GitHub Actions integration for automated testing pipelines
+- **Cloud Testing**: LambdaTest and BrowserStack support for scalable testing
+- **Version Control**: Git-based workflow with automated test execution
 
-## Logging
-Utilized to track execution flow and failures, aiding in debugging and analysis.
+## Quick Start
 
-## CI/CD
-Integrated with Jenkins/GitHub Actions to automate the testing process, ensuring continuous integration and deployment.
+### Installation
 
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd python-mobile
+   ```
 
+2. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-get all installed packages
+3. **Configure test environment**
+   - Update `config/TestConfig.json` with your device/platform settings
+   - Place your app files in the `app/` directory
 
-`pip freeze > requirements.txt`
+4. **Run tests**
+   ```bash
+   python run_tests.py
+   ```
 
-To Install Packages from requirements.txt
+### Package Management
 
-`pip install -r requirements.txt`
-## content-desc
+**Export current packages:**
+```bash
+pip freeze > requirements.txt
+```
+
+**Install from requirements:**
+```bash
+pip install -r requirements.txt
+```
+
+## Locator Usage
+
+### Content Description Locators
+
+For accessibility-based element identification:
+
 ![img.png](img.png)
 
-### use
-
-`    
-"continue_text_button": {
+**JSON Configuration:**
+```json
+{
+  "continue_text_button": {
     "locator_type": "content",
-        "locator": "CONTINUE"
-      }
-`
+    "locator": "CONTINUE"
+  }
+}
+```
 
-Emoji cheat sheet
+### Available Methods
 
-`https://www.webfx.com/tools/emoji-cheat-sheet`
+**Element Interactions:**
+- `tap_on_element` - Single tap on element
+- `double_tap_on_element` - Double tap gesture
+- `enter_text` - Text input into fields
+- `long_press_element` - Long press gesture
+- `multi_tap` - Multiple tap sequences
 
-Methods:
-tap_on_element
-double_tap_on_element
-enter_text
-swipe_element_to_element
-swipe_by_direction
-swipe_by_coordinates
-text_print
+**Gestures & Navigation:**
+- `swipe_element_to_element` - Swipe between elements
+- `swipe_by_direction` - Directional swiping
+- `swipe_by_coordinates` - Coordinate-based swiping
 
-element_visible
-element_not_visible
-element_present
-long_press_element
-multi_tap
+**Verification & Waiting:**
+- `element_visible` - Check element visibility
+- `element_not_visible` - Verify element invisibility
+- `element_present` - Check DOM presence
+
+**Utilities:**
+- `text_print` - Colored console output
+
+### Resources
+
+- **Emoji Reference**: [Emoji Cheat Sheet](https://www.webfx.com/tools/emoji-cheat-sheet)
+- **Appium Documentation**: [Official Appium Docs](https://appium.io/docs/)
+- **pytest Guide**: [pytest Documentation](https://docs.pytest.org/)
 
 ## Device Class Documentation
 
@@ -545,6 +594,312 @@ clipboard_text = element.tap_and_get_clipboard_text("copy_button")
 text = element.tap_and_get_clipboard_text("share_link", pause_after_click=2)
 ```
 
+## Prints Module Documentation
+
+The `prints` module provides colored text output functionality for enhanced console logging in mobile testing automation.
+
+### text_print(text, color="CYAN")
+**Description:** Prints text in the specified color using colorama for cross-platform colored terminal output.
+**Parameters:**
+- `text` (str): The message to print (required)
+- `color` (str): The color name for text output (default: "CYAN")
+**Available Colors:**
+- "RED", "GREEN", "YELLOW", "BLUE", "MAGENTA", "CYAN", "WHITE", "BLACK"
+**Returns:** None
+**Examples:**
+```python
+from framework.mobile.prints import text_print
+
+# Print success message in green
+text_print("Test passed successfully", "GREEN")
+
+# Print error message in red
+text_print("Test failed with error", "RED")
+
+# Print info message with default cyan color
+text_print("Starting test execution")
+
+# Print warning in yellow
+text_print("Warning: Low battery detected", "YELLOW")
+```
+
+## Verify Class Documentation
+
+The `Verify` class provides element verification functionality for mobile testing automation, allowing you to validate element states and properties.
+
+### Verify(driver, file_path)
+**Description:** Initializes the Verify class with a WebDriver instance and locators file path for element verification operations.
+**Parameters:**
+- `driver`: WebDriver instance (required)
+- `file_path` (str): Path to JSON file containing element locators (required)
+**Raises:**
+- `FileNotFoundError`: If locator file not found
+- `ValueError`: If JSON format is invalid
+**Examples:**
+```python
+from framework.mobile.verify import Verify
+verify = Verify(driver, "locators/login_page.json")
+```
+
+### element_visible(locator_name, timeout=10)
+**Description:** Verifies if an element is visible on the screen.
+**Parameters:**
+- `locator_name` (str): Name of the locator in the JSON file
+- `timeout` (int): Maximum time to wait for element visibility (default: 10 seconds)
+**Returns:** bool - True if element is visible
+**Raises:**
+- `ValueError`: If locator is invalid or missing
+- `TimeoutException`: If element not visible after timeout
+**Examples:**
+```python
+verify.element_visible("login_button")
+verify.element_visible("error_message", timeout=15)
+```
+
+### element_not_visible(locator_name, timeout=10)
+**Description:** Verifies if an element is not visible on the screen.
+**Parameters:**
+- `locator_name` (str): Name of the locator in the JSON file
+- `timeout` (int): Maximum time to wait for element invisibility (default: 10 seconds)
+**Returns:** bool - True if element is not visible
+**Raises:**
+- `ValueError`: If locator is invalid or missing
+- `TimeoutException`: If element still visible after timeout
+**Examples:**
+```python
+verify.element_not_visible("loading_spinner")
+verify.element_not_visible("popup_dialog", timeout=20)
+```
+
+### element_present(locator_name, timeout=10)
+**Description:** Verifies if an element is present in the DOM (may not be visible).
+**Parameters:**
+- `locator_name` (str): Name of the locator in the JSON file
+- `timeout` (int): Maximum time to wait for element presence (default: 10 seconds)
+**Returns:** bool - True if element is present
+**Raises:**
+- `ValueError`: If locator is invalid or missing
+- `TimeoutException`: If element not present after timeout
+**Examples:**
+```python
+verify.element_present("hidden_field")
+verify.element_present("dynamic_content", timeout=25)
+```
+
+### verify_element_text(locator_name, expected_text, contains=False, case_sensitive=True, timeout=10)
+**Description:** Gets text from element and verifies it against expected text with various comparison options.
+**Parameters:**
+- `locator_name` (str): Name of the locator in the JSON file
+- `expected_text` (str): Text to verify against
+- `contains` (bool): If True, checks if element text contains expected text; if False, checks for exact match (default: False)
+- `case_sensitive` (bool): If True, performs case-sensitive comparison (default: True)
+- `timeout` (int): Maximum time to wait for element presence (default: 10 seconds)
+**Returns:** bool - True if verification passes, False otherwise
+**Raises:**
+- `ValueError`: If locator is invalid or missing
+- `TimeoutException`: If element not present after timeout
+**Examples:**
+```python
+# Exact match verification
+verify.verify_element_text("status_label", "Success")
+
+# Contains verification
+verify.verify_element_text("error_message", "failed", contains=True)
+
+# Case-insensitive verification
+verify.verify_element_text("title", "welcome", case_sensitive=False)
+
+# Combined options
+verify.verify_element_text("description", "test", contains=True, case_sensitive=False, timeout=15)
+```
+
+## Wait Class Documentation
+
+The `Wait` class provides waiting functionality for mobile testing automation, allowing you to wait for elements and add delays in test execution.
+
+### Wait(driver, file_path)
+**Description:** Initializes the Wait class with a WebDriver instance and locators file path for waiting operations.
+**Parameters:**
+- `driver`: WebDriver instance (required)
+- `file_path` (str): Path to JSON file containing element locators (required)
+**Raises:**
+- `FileNotFoundError`: If locator file not found
+- `ValueError`: If JSON format is invalid
+**Examples:**
+```python
+from framework.mobile.wait import Wait
+wait = Wait(driver, "locators/login_page.json")
+```
+
+### wait_until_element_is_visible(locator_name)
+**Description:** Waits until the specified element becomes visible on the screen with a 30-second timeout.
+**Parameters:**
+- `locator_name` (str): Name of the locator in the JSON file
+**Returns:** None
+**Raises:**
+- `ValueError`: If locator is invalid, missing, or unsupported locator type
+- `TimeoutException`: If element not visible after 30 seconds
+**Supported Locator Types:** xpath, id, path, content, uiautomator, class
+**Examples:**
+```python
+wait.wait_until_element_is_visible("login_button")
+wait.wait_until_element_is_visible("dashboard_header")
+```
+
+### wait_for_seconds(seconds)
+**Description:** Pauses the execution for the specified number of seconds and prints a confirmation message.
+**Parameters:**
+- `seconds` (int/float): The number of seconds to wait
+**Returns:** None
+**Examples:**
+```python
+# Wait for 3 seconds
+wait.wait_for_seconds(3)
+
+# Wait for 1.5 seconds
+wait.wait_for_seconds(1.5)
+
+# Wait for 10 seconds
+wait.wait_for_seconds(10)
+```
+
+## Configuration Documentation
+
+The `TestConfig.json` file contains the configuration settings for the mobile automation framework, supporting multiple platforms and testing environments.
+
+### Configuration Structure
+
+**File Location:** `config/TestConfig.json`
+
+**Main Configuration Properties:**
+- `run` (str): Specifies which platform configuration to use ("android", "iOS", "lambdaTest", "browserStack")
+- `config` (object): Contains platform-specific configurations and global settings
+
+### Platform Configurations
+
+#### Android Configuration
+```json
+"android": {
+  "platform": "android",
+  "appPath/appPackage": "org-simple-clinic.apk",
+  "platformVersion": "13",
+  "deviceName": "0e191f93bb13",
+  "automationName": "UiAutomator2",
+  "capabilities": {
+    "appWaitDuration": 30000,
+    "newCommandTimeout": 60,
+    "noReset": true,
+    "autoGrantPermissions": true
+  }
+}
+```
+
+**Android Properties:**
+- `platform`: Target platform ("android")
+- `appPath/appPackage`: Path to APK file or package name
+- `platformVersion`: Android OS version
+- `deviceName`: Device identifier or name
+- `automationName`: Automation engine ("UiAutomator2")
+- `capabilities`: Additional Appium capabilities
+
+#### iOS Configuration
+```json
+"iOS": {
+  "platform": "iOS",
+  "deviceName": "iPhone 15",
+  "appPath/appPackage": "TestApp.app",
+  "platformVersion": "18.4",
+  "automationName": "XCUITest",
+  "capabilities": {
+    "appWaitDuration": 30000,
+    "newCommandTimeout": 60,
+    "noReset": true,
+    "showXcodeLog": true
+  }
+}
+```
+
+**iOS Properties:**
+- `platform`: Target platform ("iOS")
+- `deviceName`: iOS device name or simulator
+- `appPath/appPackage`: Path to .app bundle
+- `platformVersion`: iOS version
+- `automationName`: Automation engine ("XCUITest")
+- `capabilities`: iOS-specific capabilities
+
+#### LambdaTest Cloud Configuration
+```json
+"lambdaTest": {
+  "platform": "Android",
+  "deviceName": "Galaxy S21",
+  "app": "lt://APP_ID",
+  "platformVersion": "12.0",
+  "automationName": "UiAutomator2",
+  "isRealMobile": true,
+  "capabilities": {
+    "appWaitDuration": 30000,
+    "newCommandTimeout": 60,
+    "noReset": true,
+    "network": true,
+    "console": true
+  }
+}
+```
+
+**LambdaTest Properties:**
+- `app`: LambdaTest app identifier ("lt://APP_ID")
+- `isRealMobile`: Use real device instead of emulator
+- `network`: Enable network logs
+- `console`: Enable console logs
+
+#### BrowserStack Configuration
+```json
+"browserStack": {
+  "platform": "web",
+  "browser": "chrome",
+  "browserVersion": "latest"
+}
+```
+
+**BrowserStack Properties:**
+- `platform`: Platform type ("web")
+- `browser`: Browser name
+- `browserVersion`: Browser version
+
+### Global Settings
+
+- `report` (bool): Enable/disable test reporting (default: false)
+- `hightlight_element` (bool): Enable/disable element highlighting during tests (default: false)
+
+### Common Capabilities
+
+**Standard Capabilities:**
+- `appWaitDuration`: Maximum time to wait for app launch (milliseconds)
+- `newCommandTimeout`: Timeout for new commands (seconds)
+- `noReset`: Prevent app reset between sessions
+- `autoGrantPermissions`: Automatically grant app permissions (Android)
+- `showXcodeLog`: Display Xcode logs (iOS)
+
+### Usage Examples
+
+**Switching Platforms:**
+```json
+{
+  "run": "android",  // Use Android configuration
+  "config": { ... }
+}
+```
+
+**Enabling Reports:**
+```json
+{
+  "run": "iOS",
+  "config": {
+    "report": true,
+    "hightlight_element": true
+  }
+}
+```
 
 ## Android TV
 ```
