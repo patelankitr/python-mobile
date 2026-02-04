@@ -4,8 +4,8 @@
     "android": {
       "platform": "android",
       "appPath/appPackage": "Vehicleinfo.apk",
-      "platformVersion": "16",
-      "deviceName": "R9ZY30040CW",
+      "platformVersion": "13",
+      "deviceName": "R9ZT205C2SV",
       "automationName": "UiAutomator2",
       "capabilities": {
         "appWaitDuration": 30000,
@@ -23,7 +23,7 @@
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,
-        "noReset": true,
+        "noReset": false,
         "showXcodeLog": true
       }
     },
@@ -48,7 +48,7 @@
       "browserVersion": "latest"
     },
     "report": true,
-    "hightlight_element": false
+    "hightlight_element": true
 
   }
 }

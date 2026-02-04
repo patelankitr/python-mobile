@@ -3,12 +3,14 @@ import re
 from datetime import date, datetime
 from pathlib import Path
 
+import allure
 from appium.webdriver.common.appiumby import AppiumBy
 
 from framework.mobile.wait import Wait
 from framework.mobile.element import Element
 from framework.mobile.verify import Verify
 from framework.mobile.prints import text_print
+
 
 class Insurance_Vehicle:
     def __init__(self, driver):
@@ -19,28 +21,40 @@ class Insurance_Vehicle:
         self.wait = Wait(driver, self._json_file_path)
         self.verify = Verify(driver, self._json_file_path)
 
+    @allure.step("Tap on close button of update screen")
     def tap_on_close_button_of_update_screen(self):
-        self.element.tap_on_element('close_button')
+        if self.verify.element_is_visible("close_button"):
+            self.element.tap_on_element("close_button")
+        else:
+            text_print("close_button not visible")
 
+
+    @allure.step("Tap on check price now button")
     def tap_on_check_price_now_button(self):
         self.element.tap_on_element("check_price_now_button")
 
+    @allure.step("Tap on insurance button")
     def tap_on_insurance_button(self):
+        self.element.start_screen_recording(quality='medium')
         self.wait.load_locators()
         self.element.tap_on_element("insurance_button")
 
+    @allure.step("Tap on car history report")
     def tap_on_car_history_report(self):
         self.wait.load_locators()
         self.wait.wait_for_seconds(1)
         self.element.tap_on_element("car_history_report")
 
+    @allure.step("Tap on check and pay challan")
     def tap_on_check_and_pay_challan(self):
         self.wait.load_locators()
         self.element.tap_on_element("check_and_pay_challan")
 
+    @allure.step("Tap on get report button")
     def tap_on_get_report_button(self):
         self.element.tap_on_element("get_report_button")
 
+    @allure.step("Verify report")
     def verify_report(self):
         if self.verify.element_is_visible("brand_screen_title"):
             assert self.verify.element_is_visible("brand_list"), "Brand list not visible"
@@ -76,27 +90,50 @@ class Insurance_Vehicle:
 
         raise Exception("❌ None of the following are visible: the Brand screen, the Service History screen, or the “Report Unavailable” popup.")
 
+    @allure.step("Tap on skip button on popup")
     def tap_on_skip_button_on_popup(self):
-        self.element.tap_on_element("skip_button_on_popup")
+        if self.verify.element_is_visible("skip_button_on_popup"):
+            self.element.tap_on_element("skip_button_on_popup")
+        else:
+            text_print("skip_button_on_popup not visible")
 
+    @allure.step("Tap on cancel button")
     def tap_on_cancel_button(self):
-        self.element.tap_on_element("cancel_button")
+        if self.verify.element_is_visible("cancel_button"):
+            self.element.tap_on_element("cancel_button")
+        else:
+            text_print("cancel_button not visible")
 
+
+    @allure.step("Tap on close button of access your car service report popup")
     def tap_on_close_button_of_access_your_car_service_report_popup(self):
         self.element.tap_on_element("close_button_of_access_your_car_service_report_popup")
 
+    @allure.step("Tap on skip button for skip login")
     def tap_on_skip_button_for_skip_login(self):
-        self.element.tap_on_element("skip_button")
+        if self.verify.element_is_visible("skip_button"):
+            self.element.tap_on_element("skip_button")
+        else:
+            text_print("skip_button not visible")
 
+
+    @allure.step("Tap on close offer popup button")
     def tap_on_close_offer_popup_button(self):
-        self.element.tap_on_element("close_offer_popup_button")
+        if self.verify.element_is_visible("close_offer_popup_button"):
+            self.element.tap_on_element("close_offer_popup_button")
+        else:
+            text_print("close_offer_popup_button not visible")
 
+
+    @allure.step("Enter vehicle number: {vehicle_number}")
     def enter_vehicle_number(self, vehicle_number):
-        self.element.clear_and_enter_text('vehicle_number_box',vehicle_number,20)
+        self.element.clear_and_enter_text('vehicle_number_box', vehicle_number, 20)
 
+    @allure.step("Tap on back button")
     def tap_on_back_button(self):
         self.element.tap_on_element('back_button')
 
+    @allure.step("Verify multiple vehicles insurance status")
     def verify_multiple_vehicles_insurance_status(self, vehicle_numbers):
         for vehicle_no in vehicle_numbers:
             print(f"\n🔍 Checking insurance for vehicle: {vehicle_no}")
@@ -105,6 +142,14 @@ class Insurance_Vehicle:
             self.tap_on_cancel_button_for_close_choose_phone_number_popup()
             self.verify_insurance_status()
             self.tap_on_back_button()
+            recording_path = self.element.stop_screen_recording("insurnance_status.mp4")
+            if recording_path and Path(recording_path).exists():
+                with open(recording_path, "rb") as f:
+                    allure.attach(
+                        f.read(),
+                        name="Screen recording",
+                        attachment_type="video/mp4",
+                    )
 
     def convert_amount_to_int(self, amount_text):
         return int(
@@ -113,6 +158,7 @@ class Insurance_Vehicle:
             .strip()
         )
 
+    @allure.step("Enter vehicle numbers on check challan screen")
     def enter_vehicle_number_box_on_check_challan_screen(self, vehicle_numbers):
         for vehicle_no in vehicle_numbers:
             print(f"\n🔍 Checking eChallan for vehicle: {vehicle_no}")
@@ -156,6 +202,7 @@ class Insurance_Vehicle:
                 self.tap_on_back_button()
                 self.tap_on_close_offer_popup_button()
 
+    @allure.step("Enter vehicle number and get report")
     def enter_vehicle_number_then_get_report(self, vehicle_numbers):
         for vehicle_no in vehicle_numbers:
             print(f"\n🔍 Checking history for vehicle: {vehicle_no}")
@@ -163,17 +210,20 @@ class Insurance_Vehicle:
             self.tap_on_get_report_button()
             self.verify_report()
 
+    @allure.step("Tap on lets start button")
     def tap_on_lets_start_button(self):
         self.wait.wait_until_element_is_visible('lets_start_button')
         self.element.tap_on_element('lets_start_button')
         self.wait.wait_for_seconds(5)
 
+    @allure.step("Tap on cancel button for close choose phone number popup")
     def tap_on_cancel_button_for_close_choose_phone_number_popup(self):
         if self.verify.element_is_visible("cancel_button"):
             self.element.tap_on_element("cancel_button")
         else:
             text_print("cancel_button not visible")
 
+    @allure.step("Verify insurance status")
     def verify_insurance_status(self):
         self.element.swipe_by_direction('up')
         actual_insurance_date_value = self.element.get_text("insurance_date_value")

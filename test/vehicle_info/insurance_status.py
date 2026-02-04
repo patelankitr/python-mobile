@@ -3,9 +3,9 @@ from framework.init.base import init_driver, cleanup_driver
 from pages.login.login_page import *
 from colorama import Fore
 
-from pages.vehicleInfo.insurance_status import Insurance_Vehicle
+from pages.vehicleInfo.insurance_status_page import Insurance_Vehicle
 
-
+@allure.title("Vehicles Insurance Status")
 @pytest.fixture(scope="function")
 def driver():
     print(Fore.GREEN +"\nSetting up test...")
@@ -24,6 +24,7 @@ def test_vehicles_insurance_status(driver):
     iv.tap_on_skip_button_for_skip_login()
     iv.tap_on_close_offer_popup_button()
     iv.tap_on_insurance_button()
+    
     vehicle_numbers = [
         # "GJ05RT4737",
         # "GJ05JK7893",

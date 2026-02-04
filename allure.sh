@@ -1,7 +1,5 @@
-
 echo "Execute tests..."
-pytest -v --alluredir=allure-report/ Test/tutorials/test_launches_tutorial.py --alluredir=allure-report/
-
+pytest -v test/ --alluredir=allure-report/
 
 echo "Generate Allure report..."
 allure generate -c allure-report -o allure-results-html

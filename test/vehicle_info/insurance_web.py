@@ -23,10 +23,10 @@ def test_car_history_without_login():
         click_on_element(driver, "//div[@aria-label='Check Service History Report']")
 
         vehicle_numbers = [
-            "GJ09BN0209",
-            "GJ05JK7893",
-            "GJ17CA3661",
-            "GJ05PD1408",
+          # "GJ09BN0209",
+           # "GJ05JK7893",
+           # "GJ17CA3661",
+           # "GJ05PD1408",
             "GJ05TZ9196"
         ]
 

@@ -16,23 +16,33 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    if report.when == "call" and report.failed:
-        driver = item.funcargs.get("driver")
-        if driver:
-            # ✅ Create test name and timestamp
-            test_name = item.name  # like test_verify_login_functionality
-            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            screenshot_filename = f"{test_name}_{timestamp}.png"
-
-            # ✅ Save screenshot
-            screenshot = driver.get_screenshot_as_png()
-            
-            # ✅ Attach to Allure
+    if report.when == "call":
+        # Attach stdout and stderr to Allure for every test (so prints show in report)
+        if hasattr(report, "capstdout") and report.capstdout:
             allure.attach(
-                screenshot,
-                name=screenshot_filename,
-                attachment_type=allure.attachment_type.PNG
+                report.capstdout,
+                name="stdout",
+                attachment_type=allure.attachment_type.TEXT,
             )
+        if hasattr(report, "capstderr") and report.capstderr:
+            allure.attach(
+                report.capstderr,
+                name="stderr",
+                attachment_type=allure.attachment_type.TEXT,
+            )
+
+        if report.failed:
+            driver = item.funcargs.get("driver", None)
+            if driver:
+                test_name = item.name
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+                screenshot_filename = f"{test_name}_{timestamp}.png"
+                screenshot = driver.get_screenshot_as_png()
+                allure.attach(
+                    screenshot,
+                    name=screenshot_filename,
+                    attachment_type=allure.attachment_type.PNG,
+                )
 
 SCREENSHOT_DIR = "screenshots"
 RESULTS_DIR = "results"
