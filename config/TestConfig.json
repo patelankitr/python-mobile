@@ -3,14 +3,14 @@
   "config": {
     "android": {
       "platform": "android",
-      "appPath/appPackage": "org-simple-clinic.apk",
-      "platformVersion": "13",
-      "deviceName": "0e191f93bb13",
+      "appPath/appPackage": "Vehicleinfo.apk",
+      "platformVersion": "16",
+      "deviceName": "R9ZY30040CW",
       "automationName": "UiAutomator2",
       "capabilities": {
         "appWaitDuration": 30000,
         "newCommandTimeout": 60,
-        "noReset": true,
+        "noReset": false,
         "autoGrantPermissions": true
       }
     },
@@ -47,7 +47,8 @@
       "browser": "chrome",
       "browserVersion": "latest"
     },
-    "report": false,
+    "report": true,
     "hightlight_element": false
+
   }
 }

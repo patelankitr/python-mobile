@@ -346,72 +346,55 @@ class Element:
             raise Exception(f"Error performing element-to-element swipe: {str(e)}")
 
     #swipe by direction
-    def swipe_by_direction(self, direction, duration=None, percentage=0.75):
-        """
-        Swipes in the specified direction based on screen size.
-        
-        Args:
-            direction (str): Direction to swipe ('left', 'right', 'up', 'down')
-            duration (int, optional): Time in milliseconds for the swipe action
-            percentage (float): Percentage of screen to swipe (0.0 to 1.0, default 0.75)
-        """
+    def swipe_by_direction(self, direction, duration=600, percentage=0.75):
         try:
-            # Get screen dimensions
-            window_size = self.driver.get_window_size()
-            width = window_size['width']
-            height = window_size['height']
-            
-            # Calculate swipe coordinates based on direction
-            swipe_coords = {
-                'left': {
-                    'start_x': int(width * 0.8),
-                    'start_y': int(height * 0.5),
-                    'end_x': int(width * (1 - percentage)),
-                    'end_y': int(height * 0.5)
-                },
-                'right': {
-                    'start_x': int(width * 0.2),
-                    'start_y': int(height * 0.5),
-                    'end_x': int(width * percentage),
-                    'end_y': int(height * 0.5)
-                },
-                'up': {
-                    'start_x': int(width * 0.5),
-                    'start_y': int(height * 0.7),
-                    'end_x': int(width * 0.5),
-                    'end_y': int(height * (1 - percentage))
-                },
-                'down': {
-                    'start_x': int(width * 0.5),
-                    'start_y': int(height * 0.3),
-                    'end_x': int(width * 0.5),
-                    'end_y': int(height * percentage)
-                }
-            }
-            
-            if direction.lower() not in swipe_coords:
-                raise ValueError(f"Invalid direction: {direction}. Use 'left', 'right', 'up', or 'down'")
-                
-            coords = swipe_coords[direction.lower()]
-            
-            # Perform swipe
-            action = self.driver.action()
-            if duration:
-                action.press(x=coords['start_x'], y=coords['start_y']) \
-                    .wait(duration) \
-                    .move_to(x=coords['end_x'], y=coords['end_y']) \
-                    .release() \
-                    .perform()
+            size = self.driver.get_window_size()
+            width = size["width"]
+            height = size["height"]
+
+            if direction == "up":
+                start_x = width // 2
+                start_y = int(height * 0.75)
+                end_x = start_x
+                end_y = int(height * (1 - percentage))
+
+            elif direction == "down":
+                start_x = width // 2
+                start_y = int(height * 0.25)
+                end_x = start_x
+                end_y = int(height * percentage)
+
+            elif direction == "left":
+                start_x = int(width * 0.8)
+                start_y = height // 2
+                end_x = int(width * (1 - percentage))
+                end_y = start_y
+
+            elif direction == "right":
+                start_x = int(width * 0.2)
+                start_y = height // 2
+                end_x = int(width * percentage)
+                end_y = start_y
+
             else:
-                action.press(x=coords['start_x'], y=coords['start_y']) \
-                    .move_to(x=coords['end_x'], y=coords['end_y']) \
-                    .release() \
-                    .perform()
-                
-            text_print(f"Swiped {direction}", 'green')
-            
+                raise ValueError("Invalid direction")
+
+            finger = PointerInput("touch", "finger")
+            actions = ActionBuilder(self.driver, mouse=finger)
+
+            actions.pointer_action.move_to_location(start_x, start_y)
+            actions.pointer_action.pointer_down()
+            actions.pointer_action.pause(duration / 1000)
+            actions.pointer_action.move_to_location(end_x, end_y)
+            actions.pointer_action.pointer_up()
+
+            actions.perform()
+            time.sleep(0.5)
+
+            text_print(f"Swiped {direction}", "green")
+
         except Exception as e:
-            raise Exception(f"Error performing directional swipe: {str(e)}")
+            raise Exception(f"Swipe failed: {str(e)}")
 
         # Swipe by direction
         # element.swipe_by_direction('left')
@@ -482,6 +465,55 @@ class Element:
             raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
         except Exception as e:
             raise Exception(f"Error getting text from '{locator_name}': {str(e)}")
+
+    def get_all_texts(self, locator_name, timeout=10):
+        """
+        Gets text from all matching elements for the given locator.
+
+        Args:
+            locator_name (str): Name of the locator in the JSON file
+            timeout (int): Maximum time to wait for elements presence
+
+        Returns:
+            list: List of text values from all matched elements
+        """
+        try:
+            locator = self.get_locator(locator_name)
+            locator_type = locator.get("locator_type").lower()
+            locator_value = locator.get("locator")
+
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                raise ValueError(f"Unsupported locator type: {locator_type}")
+
+            # Wait until at least one element is present
+            WebDriverWait(self.driver, timeout).until(
+                EC.presence_of_element_located((by_type, locator_value))
+            )
+
+            elements = self.driver.find_elements(by_type, locator_value)
+
+            if not elements:
+                text_print(f"No elements found for {locator_name}", 'yellow')
+                return []
+
+            texts = [el.text.strip() for el in elements if el.text.strip()]
+
+            text_print(
+                f"Texts from {locator_name}: {texts}",
+                'green'
+            )
+
+            return texts
+
+        except TimeoutException:
+            raise TimeoutException(
+                f"Elements '{locator_name}' not present after {timeout} seconds"
+            )
+        except Exception as e:
+            raise Exception(
+                f"Error getting texts from '{locator_name}': {str(e)}"
+            )
 
     def get_attribute(self, locator_name, attribute_name, timeout=10):
         """
@@ -1006,7 +1038,9 @@ class Element:
             except Exception:
                 self.scroll_page(direction=direction, amount=default_amount)
         raise TimeoutException(f"Element '{locator_name}' not visible after {max_attempts} scroll attempts")
-    
+
+
+
     def hide_keyboard(self):
         """
         Hides the on-screen keyboard if it is open (Appium).

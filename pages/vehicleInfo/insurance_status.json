@@ -1,0 +1,139 @@
+{
+  "close_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@content-desc=\"Dismiss update dialogue\"]"
+  },
+  "cancel_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@content-desc=\"Cancel\"]"
+  },
+  "close_offer_popup_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/ivClose\"]"
+  },
+  "got_it_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"Got it\"]"
+  },
+  "insurance_status_message": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvInsuProtect\"]"
+  },
+  "insurance_date_value": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tv_insurance_date_value\"]"
+  },
+  "back_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/iv_back\"]"
+  },
+  "pay_now_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvPayOrReceipt\"]"
+  },
+  "login_to_vehicle_info_popup": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"Login to Vehicleinfo\"]"
+  },
+  "report_unavailable": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"Report Unavailable\"]"
+  },
+  "vehicle_number_box_on_check_challan_screen": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.EditText[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/edtRcNumber\"]"
+  },
+  "get_challan_details_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"GET CHALLAN DETAILS\"]"
+  },
+  "i_understand_link": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"I UNDERSTAND\"]"
+  },
+  "pay_now_button_for_pay_challan": {
+    "locator_type": "xpath",
+    "locator": "(//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvPayOrReceipt\"])[1]"
+  },
+  "challan_type": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvStatus\"]"
+  },
+  "fees_info_icon": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/ivFeesInfo\"]"
+  },
+  "legal_fee_amount": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvPlatformAmount\"]"
+  },
+  "challan_amount": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tvChallanAmount\"]"
+  },
+  "close_button_of_access_your_car_service_report_popup": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.ImageView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/imgClose\"]"
+  },
+  "car_history_report": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.GridView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/rvHomeTopFeatureAffiliation\"]/android.view.ViewGroup[4]"
+  },
+  "check_and_pay_challan": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.GridView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/rvHomeTopFeatureAffiliation\"]/android.view.ViewGroup[2]"
+  },
+  "search_vehicle_number": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.EditText[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/edtSearchVehicleNumber\"]"
+  },
+  "get_report_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"GET REPORT\"]"
+  },
+  "brand_screen_title": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text=\"Which brand of Car do you have?\"]"
+  },
+  "brand_list": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.GridView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/rvPopularBrands\"]"
+  },
+  "audi_brand": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tv_name\" and @text=\"AUDI\"]"
+  },
+  "car_service_history_screen_title": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tv_title\" and @text=\"Car Service History\"]"
+  },
+  "brand_name_list": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id=\"com.vehicle.rto.vahan.status.information.register:id/tv_name\"]"
+  },
+  "lets_start_button": {
+    "locator_type": "xpath",
+    "locator": "//android.view.ViewGroup[@resource-id='com.vehicle.rto.vahan.status.information.register:id/clLetsStart']"
+  },
+  "skip_button_on_popup": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@text='SKIP']"
+  },
+  "skip_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id='com.vehicle.rto.vahan.status.information.register:id/tvSkip']"
+  },
+  "insurance_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.LinearLayout[@resource-id='com.vehicle.rto.vahan.status.information.register:id/llInsurance']"
+  },
+  "vehicle_number_box": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.EditText[@resource-id='com.vehicle.rto.vahan.status.information.register:id/vi_et_reg']"
+  },
+  "check_price_now_button": {
+    "locator_type": "xpath",
+    "locator": "//android.widget.TextView[@resource-id='com.vehicle.rto.vahan.status.information.register:id/txt_check_price_now']"
+  }
+}
+

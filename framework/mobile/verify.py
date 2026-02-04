@@ -51,6 +51,41 @@ class Verify:
         except TimeoutException:
             raise TimeoutException(f"Element '{locator_name}' not visible after {timeout} seconds")
 
+    from selenium.webdriver.support.ui import WebDriverWait
+    from selenium.webdriver.support import expected_conditions as EC
+    from selenium.common.exceptions import TimeoutException
+
+
+    def element_is_visible(self, locator_name, timeout=10):
+        try:
+            locator = self.locators.get(locator_name)
+            if not locator:
+                text_print(f"Locator '{locator_name}' not found", "red")
+                return False
+
+            locator_type = locator.get("locator_type", "").lower()
+            by_type = locator_map.get(locator_type)
+            if not by_type:
+                text_print(f"Unsupported locator type: {locator_type}", "red")
+                return False
+
+            locator_value = locator.get("locator")
+            if not locator_value:
+                text_print(f"Locator value missing for '{locator_name}'", "red")
+                return False
+
+            WebDriverWait(self.driver, timeout).until(
+                EC.visibility_of_element_located((by_type, locator_value))
+            )
+
+            text_print(f"Element '{locator_name}' is visible", "green")
+            return True
+
+        except TimeoutException:
+            text_print(f"Element '{locator_name}' not visible", "yellow")
+            return False
+
+
     def element_not_visible(self, locator_name, timeout=10):
         try:
             locator = self.locators.get(locator_name)
