@@ -1,7 +1,8 @@
 import pytest
+import allure
 from framework.init.base import init_driver, cleanup_driver
-from pages.login.login_page import *
 from colorama import Fore
+
 
 from pages.vehicleInfo.insurance_status_page import Insurance_Vehicle
 
@@ -14,7 +15,7 @@ def driver():
     print(Fore.GREEN +"\nCleaning up test...")
     cleanup_driver()
 
-@pytest.mark.login
+@pytest.mark.insurance
 def test_vehicles_insurance_status(driver):
     iv = Insurance_Vehicle(driver)
     iv.tap_on_close_button_of_update_screen()
@@ -36,7 +37,7 @@ def test_vehicles_insurance_status(driver):
     iv.verify_multiple_vehicles_insurance_status(vehicle_numbers)
 
 
-@pytest.mark.login
+@pytest.mark.challan
 def test_vehicles_challan_types_and_convenience_fees(driver):
     iv = Insurance_Vehicle(driver)
     iv.tap_on_close_button_of_update_screen()
@@ -54,7 +55,7 @@ def test_vehicles_challan_types_and_convenience_fees(driver):
     iv.enter_vehicle_number_box_on_check_challan_screen(vehicle_numbers)
 
 
-@pytest.mark.login
+@pytest.mark.history
 def test_vehicles_car_history_report(driver):
     iv = Insurance_Vehicle(driver)
     iv.tap_on_close_button_of_update_screen()

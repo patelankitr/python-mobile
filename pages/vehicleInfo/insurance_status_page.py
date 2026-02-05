@@ -2,10 +2,8 @@ import random
 import re
 from datetime import date, datetime
 from pathlib import Path
-
 import allure
 from appium.webdriver.common.appiumby import AppiumBy
-
 from framework.mobile.wait import Wait
 from framework.mobile.element import Element
 from framework.mobile.verify import Verify
@@ -20,6 +18,7 @@ class Insurance_Vehicle:
         self.element = Element(driver, self._json_file_path)
         self.wait = Wait(driver, self._json_file_path)
         self.verify = Verify(driver, self._json_file_path)
+
 
     @allure.step("Tap on close button of update screen")
     def tap_on_close_button_of_update_screen(self):
@@ -227,6 +226,7 @@ class Insurance_Vehicle:
     def verify_insurance_status(self):
         self.element.swipe_by_direction('up')
         actual_insurance_date_value = self.element.get_text("insurance_date_value")
+        allure.step(f"Actual insurance date: {actual_insurance_date_value}")
         text_print("actual_insurance_date_value" + actual_insurance_date_value)
 
         today = date.today()
@@ -235,6 +235,7 @@ class Insurance_Vehicle:
         if text.lower().startswith("expired on"):
             expired_date_str = text.replace("Expired on", "").strip()
             expired_date = datetime.strptime(expired_date_str, "%d %b,%Y").date()
+            allure.step(f"Actual insurance date: {actual_insurance_date_value} and expired date: {expired_date}")
             if expired_date >= today:
                 raise AssertionError(
                     f"BUG: UI shows expired but date is not in past. "
