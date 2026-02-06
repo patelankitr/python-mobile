@@ -1,0 +1,89 @@
+[32m
+Setting up test...
+[32m
+📱 Device Info[0m
+[36m------------------------[0m
+[32mrun_type : android[0m
+[32mplatform : android[0m
+[32mplatform_version : 13[0m
+[32mdevice_name : R9ZT205C2SV[0m
+[32mapp/appPackage : Vehicleinfo.apk[0m
+[32mautomation_name : UiAutomator2[0m
+[36m------------------------
+[0m
+[32mStarting Appium service...
+[32mAppium service started successfully.✅
+[32mServer URL: http://127.0.0.1:4723
+[33mFinal Capabilities: {'platformName': 'Android', 'deviceName': 'R9ZT205C2SV', 'platformVersion': '13', 'automationName': 'UiAutomator2', 'appActivity': None, 'app': 'D:\\Mobile Automation\\python-mobile\\app\\Vehicleinfo.apk', 'appWaitDuration': 30000, 'newCommandTimeout': 60, 'noReset': False, 'autoGrantPermissions': True}
+[32mDriver initialized successfully
+Device Type : Real Device
+[36mJSON file_path: D:\Mobile Automation\python-mobile\pages\vehicleInfo\insurance_status.json[0m
+[32m
+ Initializing Element class with file_path: D:\Mobile Automation\python-mobile\pages\vehicleInfo\insurance_status.json[0m
+[32mElement class initialized successfully[0m
+[36mJSON file_path: D:\Mobile Automation\python-mobile\pages\vehicleInfo\insurance_status.json[0m
+[32m
+ Initializing Element class with file_path: D:\Mobile Automation\python-mobile\pages\vehicleInfo\insurance_status.json[0m
+[32mElement class initialized successfully[0m
+[32mElement 'close_button' is visible[0m
+📸 Highlighted screenshot saved to screenshots/close_button_20260206_113306.png
+[32mClicked on close_button[0m
+📸 Highlighted screenshot saved to screenshots/lets_start_button_20260206_113307.png
+[32mClicked on lets_start_button[0m
+[32mWaited for 5 seconds[0m
+[33mElement 'skip_button_on_popup' not visible[0m
+[36mskip_button_on_popup not visible[0m
+[33mElement 'cancel_button' not visible[0m
+[36mcancel_button not visible[0m
+[32mElement 'skip_button' is visible[0m
+📸 Highlighted screenshot saved to screenshots/skip_button_20260206_113334.png
+[32mClicked on skip_button[0m
+[32mElement 'close_offer_popup_button' is visible[0m
+📸 Highlighted screenshot saved to screenshots/close_offer_popup_button_20260206_113338.png
+[32mClicked on close_offer_popup_button[0m
+📸 Highlighted screenshot saved to screenshots/check_and_pay_challan_20260206_113345.png
+[32mClicked on check_and_pay_challan[0m
+
+🔍 Checking eChallan for vehicle: DL1MA4514
+[32mCleared text from vehicle_number_box_on_check_challan_screen[0m
+[32mEntered new text in vehicle_number_box_on_check_challan_screen: DL1MA4514[0m
+📸 Highlighted screenshot saved to screenshots/get_challan_details_button_20260206_113349.png
+[32mClicked on get_challan_details_button[0m
+[32mSwiped up[0m
+📸 Highlighted screenshot saved to screenshots/pay_now_button_for_pay_challan_20260206_113354.png
+[32mClicked on pay_now_button_for_pay_challan[0m
+[32mText from challan_type: eCHALLAN[0m
+[32mText from challan_amount: ₹20,000[0m
+Challan Amount: 20000
+📸 Highlighted screenshot saved to screenshots/fees_info_icon_20260206_113357.png
+[32mClicked on fees_info_icon[0m
+[32mText from legal_fee_amount: ₹299[0m
+Legal Fee Amount: 299
+[32mWaited for 10 seconds[0m
+✅ Legal fee verified as 299 for challan amount > 1000
+📸 Highlighted screenshot saved to screenshots/i_understand_link_20260206_113409.png
+[32mClicked on i_understand_link[0m
+📸 Highlighted screenshot saved to screenshots/back_button_20260206_113410.png
+[32mClicked on back_button[0m
+📸 Highlighted screenshot saved to screenshots/back_button_20260206_113412.png
+[32mClicked on back_button[0m
+[32mElement 'close_offer_popup_button' is visible[0m
+📸 Highlighted screenshot saved to screenshots/close_offer_popup_button_20260206_113415.png
+[32mClicked on close_offer_popup_button[0m
+
+🔍 Checking eChallan for vehicle: WB25N4228
+[32mCleared text from vehicle_number_box_on_check_challan_screen[0m
+[32mEntered new text in vehicle_number_box_on_check_challan_screen: WB25N4228[0m
+📸 Highlighted screenshot saved to screenshots/get_challan_details_button_20260206_113419.png
+[32mClicked on get_challan_details_button[0m
+[32mSwiped up[0m
+📸 Highlighted screenshot saved to screenshots/pay_now_button_for_pay_challan_20260206_113429.png
+[32mClicked on pay_now_button_for_pay_challan[0m
+[32mText from challan_type: eCHALLAN[0m
+[32mText from challan_amount: ₹500[0m
+Challan Amount: 500
+📸 Highlighted screenshot saved to screenshots/fees_info_icon_20260206_113432.png
+[32mClicked on fees_info_icon[0m
+[32mText from legal_fee_amount: ₹149[0m
+Legal Fee Amount: 149
+[32mWaited for 10 seconds[0m

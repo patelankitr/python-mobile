@@ -1,4 +1,6 @@
 import time
+
+import allure
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException
@@ -208,12 +210,19 @@ class Verify:
                     f"Text verification passed for {locator_name}. "
                     f"Text {comparison_type}: '{expected_text}'", 'green'
                 )
+                with allure.step(f"Text verification passed for {locator_name}. "
+                    f"Text {comparison_type}: '{expected_text}'"):
+                    pass
             else:
                 text_print(
                     f"Text verification failed for {locator_name}. "
                     f"Expected text {comparison_type}: '{expected_text}', "
                     f"Actual text: '{actual_text}'", 'red'
                 )
+                with allure.step(f"Text verification failed for {locator_name}. "
+                    f"Expected text {comparison_type}: '{expected_text}', "
+                    f"Actual text: '{actual_text}'"):
+                    pass
 
             return result
 

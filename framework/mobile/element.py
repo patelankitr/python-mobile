@@ -3,6 +3,9 @@ import json
 import os
 import sys
 from pathlib import Path
+
+import allure
+
 import config
 from utils.screenshots import highlight_element
 from selenium.webdriver import ActionChains
@@ -90,6 +93,8 @@ class Element:
 
             element.click()
             text_print(f"Clicked on {locator_name}",'green')
+            with allure.step(f"Clicked on {locator_name}"):
+                pass
         except TimeoutException:
             raise TimeoutException(f"Element '{locator_name}' not clickable after {timeout} seconds")
 
@@ -241,6 +246,8 @@ class Element:
                 # Enter new text
                 element.send_keys(text_to_enter)
                 text_print(f"Entered new text in {locator_name}: {text_to_enter}", 'green')
+                with allure.step(f"Entered new text in {locator_name}: {text_to_enter}"):
+                    pass
                 
             except TimeoutException:
                 raise TimeoutException(f"Element '{locator_name}' not present after {timeout} seconds")
@@ -402,6 +409,59 @@ class Element:
         # element.swipe_by_direction('up', percentage=0.5)  # swipe 50% of screen
         # element.swipe_by_direction('down', duration=500, percentage=0.8)
 
+    def swipe_till_element_visible(
+            self,
+            locator_name,
+            direction="up",
+            max_swipes=5,
+            timeout=2
+    ):
+        """
+        Swipe until element (by locator_name) becomes visible
+        """
+
+        locator = self.locators.get(locator_name)
+        if not locator:
+            raise ValueError(f"Locator '{locator_name}' not found in locators")
+
+        locator_type = locator.get("locator_type", "").lower()
+        locator_value = locator.get("locator_value")
+
+        if not locator_type or not locator_value:
+            raise ValueError(
+                f"Locator '{locator_name}' has empty locator_type or locator_value"
+            )
+
+        by_type = locator_map.get(locator_type)
+        if not by_type:
+            raise ValueError(f"Unsupported locator type: {locator_type}")
+
+        for swipe_count in range(max_swipes):
+            try:
+                WebDriverWait(self.driver, timeout).until(
+                    EC.visibility_of_element_located(
+                        (by_type, locator_value)
+                    )
+                )
+                text_print(
+                    f"✅ '{locator_name}' visible after {swipe_count} swipe(s)",
+                    "green"
+                )
+                return True
+
+            except TimeoutException:
+                text_print(
+                    f"🔄 '{locator_name}' not visible, swiping {direction} "
+                    f"({swipe_count + 1}/{max_swipes})",
+                    "yellow"
+                )
+                self.swipe_by_direction(direction)
+                time.sleep(0.5)
+
+        raise Exception(
+            f"❌ '{locator_name}' not visible after {max_swipes} swipes"
+        )
+
     def swipe_by_coordinates(self, start_x, start_y, end_x, end_y, duration=500):
         """
         Swipes from one coordinate to another using Appium W3C Actions.
@@ -458,7 +518,8 @@ class Element:
             # Get text from element
             element_text = element.text
             text_print(f"Text from {locator_name}: {element_text}", 'green')
-            
+            # with allure.step(f"Text from {locator_name}: {element_text}"):
+            #     pass
             return element_text
             
         except TimeoutException:
